@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inscribed Square Viewfinder</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0a0a0f;color:#e0ddd8;font-family:'Courier New',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;}
+  h1{font-size:13px;letter-spacing:0.2em;text-transform:uppercase;color:#666;margin-bottom:6px;}
+  .sub{font-size:11px;color:#444;margin-bottom:16px;letter-spacing:0.1em;}
+  #canvas{display:block;background:#0d0d14;border:1px solid #1e1e2a;cursor:crosshair;touch-action:none;}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;justify-content:center;max-width:700px;}
+  button{background:transparent;border:1px solid #2a2a3a;color:#888;padding:6px 14px;font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
+  button:hover{border-color:#555;color:#ccc;background:#111;}
+  button.active{border-color:#4a9;color:#4a9;}
+  .slrow{display:flex;align-items:center;gap:10px;font-size:11px;color:#555;letter-spacing:0.08em;}
+  input[type=range]{width:130px;accent-color:#4a9;}
+  .meters{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px;max-width:700px;width:100%;}
+  .meter{background:#0d0d14;border:1px solid #1a1a24;padding:6px 9px;}
+  .mlabel{font-size:9px;color:#3a3a4a;letter-spacing:0.1em;text-transform:uppercase;}
+  .mval{font-size:14px;font-weight:bold;color:#555;margin-top:1px;transition:color 0.2s;}
+  .mval.match{color:#4a9;}
+  .mval.warm{color:#ca6;}
+  .status{margin-top:8px;font-size:11px;color:#3a3a4a;letter-spacing:0.12em;text-transform:uppercase;min-height:16px;}
+  .status.found{color:#4a9;}
+  .status.warn{color:#ca6;}
+  .legend{display:flex;gap:14px;margin-top:8px;font-size:10px;color:#444;flex-wrap:wrap;justify-content:center;}
+  .legend span{display:flex;align-items:center;gap:5px;}
+  .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+</style>
+</head>
+<body>
+<h1>Inscribed Square Viewfinder</h1>
+<div class="sub">Edward James Gordon — Inscribed Square Problem</div>
+<canvas id="canvas"></canvas>
+<div class="controls">
+  <button onclick="newCurve()">New curve</button>
+  <button onclick="resetSquare()">Reset square</button>
+  <button onclick="toggleScan()" id="scanBtn">Auto-find</button>
+  <div class="slrow">Size<input type="range" id="szSl" min="4" max="380" value="50" step="1" oninput="onSz(this.value)"><span id="szV">50</span></div>
+  <div class="slrow">Rotate<input type="range" id="rtSl" min="0" max="360" value="0" step="1" oninput="onRt(this.value)"><span id="rtV">0°</span></div>
+</div>
+<div class="meters">
+  <div class="meter"><div class="mlabel">A → B side</div><div class="mval" id="mAB">—</div></div>
+  <div class="meter"><div class="mlabel">B → C side</div><div class="mval" id="mBC">—</div></div>
+  <div class="meter"><div class="mlabel">C → D side</div><div class="mval" id="mCD">—</div></div>
+  <div class="meter"><div class="mlabel">D → A side</div><div class="mval" id="mDA">—</div></div>
+  <div class="meter"><div class="mlabel">A ↔ C diagonal</div><div class="mval" id="mAC">—</div></div>
+  <div class="meter"><div class="mlabel">B ↔ D diagonal</div><div class="mval" id="mBD">—</div></div>
+</div>
+<div class="legend">
+  <span><span class="dot" style="background:#888"></span>Inside</span>
+  <span><span class="dot" style="background:#ca6"></span>On boundary</span>
+  <span><span class="dot" style="background:#4a9"></span>All four locked — inscribed square</span>
+</div>
+<div class="status" id="status">Expand the square — it scales down when it meets the boundary</div>
+
+<script>
+const cv=document.getElementById('canvas'),ctx=cv.getContext('2d');
+let W,H,curve=[],cen={x:0,y:0};
+let sqX=0,sqY=0,sqSz=50,sqAng=0;
+let dragging=false,dOX=0,dOY=0;
+let scanning=false,scanT=0,scanId=null;
+let wX=0,wY=0,lockedFrame=null;
+let prevSD=null,prevT=null,prevWX=0,prevWY=0;
+const VN=['A','B','C','D'],VC=['#e55','#ca6','#69a','#4a9'];
+
+function resize(){const mw=Math.min(window.innerWidth-40,700);W=cv.width=mw;H=cv.height=Math.round(mw*0.68);}
+
+function genCurve(){
+  curve=[];
+  const cx=W/2,cy=H/2,base=Math.min(W,H)*0.36;
+  const b=Array.from({length:5},()=>0.45+Math.random()*0.85);
+  for(let i=0;i<600;i++){
+    const t=i/600*Math.PI*2,r=base+b.reduce((s,v,j)=>s+base*0.14*v*Math.cos((j+2)*t+j*2.1),0);
+    curve.push({x:cx+r*Math.cos(t),y:cy+r*Math.sin(t)});
+  }
+  let sx=0,sy=0;for(const p of curve){sx+=p.x;sy+=p.y;}
+  cen={x:sx/curve.length,y:sy/curve.length};wX=cen.x;wY=cen.y;
+}
+
+function inside(px,py){
+  let ins=false;
+  for(let i=0,j=curve.length-1;i<curve.length;j=i++){
+    const xi=curve[i].x,yi=curve[i].y,xj=curve[j].x,yj=curve[j].y;
+    if(((yi>py)!==(yj>py))&&px<(xj-xi)*(py-yi)/(yj-yi)+xi)ins=!ins;
+  }
+  return ins;
+}
+
+function nearestOn(px,py){
+  let best=Infinity,bx=0,by=0;
+  for(const p of curve){const d2=(p.x-px)**2+(p.y-py)**2;if(d2<best){best=d2;bx=p.x;by=p.y;}}
+  return{x:bx,y:by};
+}
+
+function distToNearest(px,py){const n=nearestOn(px,py);return Math.hypot(n.x-px,n.y-py);}
+
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
+
+function rawV(cx,cy,sz,ang){
+  const h=sz/Math.SQRT2;
+  return [0,1,2,3].map(i=>({x:cx+h*Math.cos(ang+i*Math.PI/2),y:cy+h*Math.sin(ang+i*Math.PI/2)}));
+}
+
+// Scale square down until all vertices fit inside the curve
+function scaledVerts(cx,cy,sz,ang){
+  let s=sz;
+  for(let iter=0;iter<80;iter++){
+    const v=rawV(cx,cy,s,ang);
+    const allIn=v.every(p=>inside(p.x,p.y));
+    if(allIn)break;
+    s*=0.97;
+    if(s<1)break;
+  }
+  const v=rawV(cx,cy,s,ang);
+  const onBoundary=s<sz*0.98;
+  // Snap any still-outside vertex to nearest curve point
+  return v.map(p=>{
+    if(!inside(p.x,p.y)){const n=nearestOn(p.x,p.y);return{x:n.x,y:n.y,locked:true,scaledSz:s};}
+    return{...p,locked:onBoundary,scaledSz:s};
+  });
+}
+
+function setM(id,val,ok,warm){
+  const el=document.getElementById(id);
+  el.textContent=val.toFixed(1);
+  el.className='mval'+(ok?' match':warm?' warm':'');
+}
+
+function updateMeters(A,B,C,D){
+  const dAB=dist(A,B),dBC=dist(B,C),dCD=dist(C,D),dDA=dist(D,A);
+  const dAC=dist(A,C),dBD=dist(B,D);
+  const sp=Math.max(dAB,dBC,dCD,dDA)-Math.min(dAB,dBC,dCD,dDA);
+  const dl=Math.abs(dAC-dBD);
+  const ok=sp<4&&dl<4;
+  setM('mAB',dAB,ok,sp<25);setM('mBC',dBC,ok,sp<25);
+  setM('mCD',dCD,ok,sp<25);setM('mDA',dDA,ok,sp<25);
+  setM('mAC',dAC,ok,dl<25);setM('mBD',dBD,ok,dl<25);
+  return ok;
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  ctx.beginPath();ctx.moveTo(curve[0].x,curve[0].y);
+  for(let i=1;i<curve.length;i++)ctx.lineTo(curve[i].x,curve[i].y);
+  ctx.closePath();
+  ctx.fillStyle='rgba(20,30,50,0.6)';ctx.fill();
+  ctx.strokeStyle='#2a4a7a';ctx.lineWidth=2;ctx.stroke();
+
+  if(lockedFrame){
+    const{A,B,C,D}=lockedFrame;
+    ctx.setLineDash([6,3]);
+    ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(C.x,C.y);
+    ctx.strokeStyle='rgba(200,160,80,0.4)';ctx.lineWidth=1;ctx.stroke();
+    ctx.beginPath();ctx.moveTo(B.x,B.y);ctx.lineTo(D.x,D.y);
+    ctx.strokeStyle='rgba(100,150,200,0.4)';ctx.lineWidth=1;ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.lineTo(C.x,C.y);ctx.lineTo(D.x,D.y);ctx.closePath();
+    ctx.strokeStyle='#4a9';ctx.lineWidth=2.5;ctx.stroke();
+    ctx.fillStyle='rgba(40,180,100,0.1)';ctx.fill();
+    [A,B,C,D].forEach((p,i)=>{
+      ctx.beginPath();ctx.arc(p.x,p.y,7,0,Math.PI*2);ctx.fillStyle=VC[i];ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.85)';ctx.font='bold 11px Courier New';
+      ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(VN[i],p.x,p.y-15);
+    });
+    updateMeters(A,B,C,D);
+    const st=document.getElementById('status');
+    st.textContent='Inscribed square found — all four vertices on the boundary';
+    st.className='status found';
+    return;
+  }
+
+  const v=scaledVerts(sqX,sqY,sqSz,sqAng);
+  const allL=v.every(p=>p.locked);
+  const anyL=v.some(p=>p.locked);
+  const actualSz=v[0].scaledSz||sqSz;
+
+  ctx.beginPath();ctx.moveTo(v[0].x,v[0].y);
+  for(let i=1;i<4;i++)ctx.lineTo(v[i].x,v[i].y);
+  ctx.closePath();
+  ctx.strokeStyle=allL?'#4a9':anyL?'#ca6':'rgba(100,160,240,0.5)';
+  ctx.lineWidth=allL?2:1.5;
+  ctx.setLineDash(allL?[]:[4,3]);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle=allL?'rgba(40,180,100,0.08)':'rgba(60,100,200,0.04)';ctx.fill();
+
+  ctx.beginPath();ctx.moveTo(v[0].x,v[0].y);ctx.lineTo(v[2].x,v[2].y);
+  ctx.moveTo(v[1].x,v[1].y);ctx.lineTo(v[3].x,v[3].y);
+  ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=0.5;ctx.stroke();
+
+  v.forEach((p,i)=>{
+    ctx.beginPath();ctx.arc(p.x,p.y,anyL?7:4,0,Math.PI*2);
+    ctx.fillStyle=anyL?(allL?VC[i]:'#ca6'):'rgba(180,180,200,0.4)';ctx.fill();
+    if(anyL){ctx.strokeStyle=allL?'#2a7':'#a84';ctx.lineWidth=1.5;ctx.stroke();}
+    ctx.fillStyle='rgba(255,255,255,0.75)';ctx.font='10px Courier New';
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(VN[i],p.x,p.y-14);
+  });
+  ctx.beginPath();ctx.arc(sqX,sqY,4,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.18)';ctx.fill();
+
+  const ok=updateMeters(v[0],v[1],v[2],v[3]);
+  const st=document.getElementById('status');
+  const lc=v.filter(p=>p.locked).length;
+  if(ok&&allL){st.textContent='Inscribed square found — all four vertices on the boundary';st.className='status found';}
+  else if(!anyL){st.textContent='Expand the square — it scales down when it meets the boundary';st.className='status';}
+  else if(allL){st.textContent='All four on boundary — distances not yet equal — try rotating';st.className='status warn';}
+  else{st.textContent='Square constrained by boundary — keep expanding or rotate';st.className='status warn';}
+}
+
+function syncSliders(){
+  const sz=Math.round(sqSz),ang=Math.round(((sqAng*180/Math.PI)%360+360)%360);
+  document.getElementById('szSl').value=sz;document.getElementById('szV').textContent=sz;
+  document.getElementById('rtSl').value=ang;document.getElementById('rtV').textContent=ang+'°';
+}
+
+function onSz(v){sqSz=+v;document.getElementById('szV').textContent=v;lockedFrame=null;draw();}
+function onRt(v){sqAng=+v*Math.PI/180;document.getElementById('rtV').textContent=v+'°';lockedFrame=null;draw();}
+
+function gp(e){const r=cv.getBoundingClientRect(),s=e.touches?e.touches[0]:e;return{x:s.clientX-r.left,y:s.clientY-r.top};}
+
+cv.addEventListener('mousedown',e=>{
+  const p=gp(e);
+  if(Math.hypot(p.x-sqX,p.y-sqY)<Math.max(sqSz*0.5,30)){
+    dragging=true;dOX=p.x-sqX;dOY=p.y-sqY;
+    if(lockedFrame){
+      lockedFrame=null;
+      document.getElementById('status').textContent='Drag to reposition';
+      document.getElementById('status').className='status warn';
+    }
+  }
+});
+cv.addEventListener('mousemove',e=>{if(!dragging)return;const p=gp(e);sqX=p.x-dOX;sqY=p.y-dOY;draw();});
+cv.addEventListener('mouseup',()=>dragging=false);
+cv.addEventListener('touchstart',e=>{e.preventDefault();const p=gp(e);if(Math.hypot(p.x-sqX,p.y-sqY)<Math.max(sqSz*0.5,30)){dragging=true;dOX=p.x-sqX;dOY=p.y-sqY;if(lockedFrame)lockedFrame=null;}},{passive:false});
+cv.addEventListener('touchmove',e=>{e.preventDefault();if(!dragging)return;const p=gp(e);sqX=p.x-dOX;sqY=p.y-dOY;draw();},{passive:false});
+cv.addEventListener('touchend',()=>dragging=false);
+
+function newCurve(){
+  stopScan();lockedFrame=null;resize();genCurve();
+  sqX=cen.x;sqY=cen.y;sqSz=50;sqAng=0;syncSliders();
+  document.getElementById('status').textContent='Expand the square — it scales down when it meets the boundary';
+  document.getElementById('status').className='status';
+  ['mAB','mBC','mCD','mDA','mAC','mBD'].forEach(id=>{const el=document.getElementById(id);el.textContent='—';el.className='mval';});
+  draw();
+}
+
+function resetSquare(){
+  stopScan();lockedFrame=null;sqX=cen.x;sqY=cen.y;sqSz=50;sqAng=0;syncSliders();draw();
+}
+
+function rayHits(ox,oy,dx,dy){
+  const hits=[];
+  for(let i=0;i<curve.length;i++){
+    const j=(i+1)%curve.length,ax=curve[i].x,ay=curve[i].y,bx=curve[j].x,by=curve[j].y;
+    const ex=bx-ax,ey=by-ay,den=dx*ey-dy*ex;
+    if(Math.abs(den)<1e-9)continue;
+    const t=((ax-ox)*ey-(ay-oy)*ex)/den,u=((ax-ox)*dy-(ay-oy)*dx)/den;
+    if(t>0.5&&u>=0&&u<=1)hits.push({x:ox+t*dx,y:oy+t*dy,t});
+  }
+  hits.sort((a,b)=>a.t-b.t);return hits;
+}
+
+function findCenter(ang,sx,sy){
+  let cx=sx,cy=sy;
+  const dx1=Math.cos(ang),dy1=Math.sin(ang),dx2=-dy1,dy2=dx1;
+  for(let i=0;i<40;i++){
+    const f1=rayHits(cx,cy,dx1,dy1),b1=rayHits(cx,cy,-dx1,-dy1);
+    if(!f1.length||!b1.length)return null;
+    const nx=(f1[0].x+b1[0].x)/2,ny=(f1[0].y+b1[0].y)/2;
+    const f2=rayHits(nx,ny,dx2,dy2),b2=rayHits(nx,ny,-dx2,-dy2);
+    if(!f2.length||!b2.length)return null;
+    cx=(f2[0].x+b2[0].x)/2;cy=(f2[0].y+b2[0].y)/2;
+    if(Math.hypot(cx-nx,cy-ny)<0.15)break;
+  }
+  return{x:cx,y:cy};
+}
+
+function computeFrame(ang,sx,sy){
+  const P=findCenter(ang,sx,sy);if(!P)return null;
+  const dx1=Math.cos(ang),dy1=Math.sin(ang),dx2=-dy1,dy2=dx1;
+  const f1=rayHits(P.x,P.y,dx1,dy1),b1=rayHits(P.x,P.y,-dx1,-dy1);
+  if(!f1.length||!b1.length)return null;
+  const f2=rayHits(P.x,P.y,dx2,dy2),b2=rayHits(P.x,P.y,-dx2,-dy2);
+  if(!f2.length||!b2.length)return null;
+  const A={x:b1[0].x,y:b1[0].y},C={x:f1[0].x,y:f1[0].y};
+  const B={x:b2[0].x,y:b2[0].y},D={x:f2[0].x,y:f2[0].y};
+  return{A,B,C,D,P,signedDelta:dist(A,C)-dist(B,D),ang};
+}
+
+function applyFrame(fr){
+  lockedFrame=fr;
+  sqX=fr.P.x;sqY=fr.P.y;
+  sqSz=dist(fr.A,fr.C)/Math.SQRT2;
+  sqAng=fr.ang+Math.PI/4;
+  syncSliders();
+}
+
+function bisect(t1,t2,sd1,wx1,wy1,wx2,wy2){
+  let lo=t1,hi=t2,sdLo=sd1,lwx=wx1,lwy=wy1,hwx=wx2,hwy=wy2;
+  for(let i=0;i<30;i++){
+    const tm=(lo+hi)/2,mwx=(lwx+hwx)/2,mwy=(lwy+hwy)/2;
+    const vm=computeFrame(tm,mwx,mwy);if(!vm)break;
+    if(Math.abs(vm.signedDelta)<0.3){applyFrame(vm);return true;}
+    if(sdLo*vm.signedDelta<0){hi=tm;hwx=vm.P.x;hwy=vm.P.y;}
+    else{lo=tm;sdLo=vm.signedDelta;lwx=vm.P.x;lwy=vm.P.y;}
+  }
+  return false;
+}
+
+function scanStep(){
+  if(!scanning)return;
+  scanT+=0.005;
+  if(scanT>Math.PI/2+0.05){stopScan();document.getElementById('status').textContent='Scan complete — try new curve';return;}
+  const v=computeFrame(scanT,wX,wY);
+  if(v){
+    wX=v.P.x;wY=v.P.y;
+    sqX=v.P.x;sqY=v.P.y;
+    sqSz=dist(v.A,v.C)/Math.SQRT2;
+    sqAng=scanT+Math.PI/4;
+    syncSliders();
+    if(prevSD!==null&&prevSD*v.signedDelta<0){
+      if(bisect(prevT,scanT,prevSD,prevWX,prevWY,v.P.x,v.P.y)){
+        stopScan();
+        updateMeters(lockedFrame.A,lockedFrame.B,lockedFrame.C,lockedFrame.D);
+        document.getElementById('status').textContent='Inscribed square found — all four vertices on the boundary';
+        document.getElementById('status').className='status found';
+        draw();return;
+      }
+    }
+    prevSD=v.signedDelta;prevT=scanT;prevWX=v.P.x;prevWY=v.P.y;
+  }
+  draw();scanId=requestAnimationFrame(scanStep);
+}
+
+function toggleScan(){scanning?stopScan():startScan();}
+
+function startScan(){
+  lockedFrame=null;scanning=true;scanT=0;prevSD=null;prevT=null;
+  wX=cen.x;wY=cen.y;sqX=cen.x;sqY=cen.y;sqSz=50;sqAng=0;syncSliders();
+  document.getElementById('scanBtn').textContent='Stop';document.getElementById('scanBtn').classList.add('active');
+  document.getElementById('status').textContent='Scanning for inscribed square...';document.getElementById('status').className='status';
+  scanId=requestAnimationFrame(scanStep);
+}
+
+function stopScan(){
+  scanning=false;cancelAnimationFrame(scanId);
+  document.getElementById('scanBtn').textContent='Auto-find';document.getElementById('scanBtn').classList.remove('active');
+}
+
+window.addEventListener('resize',()=>{resize();genCurve();sqX=cen.x;sqY=cen.y;draw();});
+resize();genCurve();sqX=cen.x;sqY=cen.y;draw();
+</script>
+</body>
+</html>
