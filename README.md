@@ -14,3 +14,5 @@ A square is therefore a mechanical necessity of a continuous, non-self-intersect
 IE : If you have two perpendicular chords going through any Jordan curve and you rotate them, while one gets longer or shorter, the other gets shorter or longer, making it a mechanical necessity that there is a matching pair somewhere around the Jordan curve.
 
 ![Inscribed Square Viewfinder Demo](viewfinder_demo.gif)
+
+https://thor110.github.io/InscribedSquareProblem/
