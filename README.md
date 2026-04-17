@@ -15,4 +15,6 @@ IE : If you have two perpendicular chords going through any Jordan curve and you
 
 ![Inscribed Square Viewfinder Demo](viewfinder_demo.gif)
 
-https://thor110.github.io/InscribedSquareProblem/
+## Interactive Demonstration
+You can view the **Inscribed Square Viewfinder** in action here:
+[Run the Live Viewfinder](https://thor110.github.io/InscribedSquareProblem/)
