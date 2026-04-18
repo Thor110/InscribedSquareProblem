@@ -14,8 +14,10 @@
   button{background:transparent;border:1px solid #2a2a3a;color:#888;padding:6px 14px;font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
   button:hover{border-color:#555;color:#ccc;background:#111;}
   button.active{border-color:#4a9;color:#4a9;}
-  .slrow{display:flex;align-items:center;gap:10px;font-size:11px;color:#555;letter-spacing:0.08em;}
-  input[type=range]{width:130px;accent-color:#4a9;}
+  select{background:#0d0d14;border:1px solid #2a2a3a;color:#888;padding:6px 10px;font-family:'Courier New',monospace;font-size:11px;cursor:pointer;text-transform:uppercase;}
+  select:hover{border-color:#555;color:#ccc;}
+  .slrow{display:flex;align-items:center;gap:10px;font-size:11px;color:#555;}
+  input[type=range]{width:120px;accent-color:#4a9;}
   .meters{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px;max-width:700px;width:100%;}
   .meter{background:#0d0d14;border:1px solid #1a1a24;padding:6px 9px;}
   .mlabel{font-size:9px;color:#3a3a4a;letter-spacing:0.1em;text-transform:uppercase;}
@@ -35,6 +37,16 @@
 <div class="sub">Edward James Gordon — Inscribed Square Problem</div>
 <canvas id="canvas"></canvas>
 <div class="controls">
+  <select id="shapeType" onchange="newCurve()">
+    <option value="random">Random blob</option>
+    <option value="star">Star</option>
+    <option value="ellipse">Ellipse</option>
+    <option value="triangle">Triangle-like</option>
+    <option value="crescent">Crescent</option>
+    <option value="polygon">Polygon</option>
+    <option value="teardrop">Teardrop</option>
+    <option value="heart">Heart-like</option>
+  </select>
   <button onclick="newCurve()">New curve</button>
   <button onclick="resetSquare()">Reset square</button>
   <button onclick="toggleScan()" id="scanBtn">Auto-find</button>
@@ -52,7 +64,7 @@
 <div class="legend">
   <span><span class="dot" style="background:#888"></span>Inside</span>
   <span><span class="dot" style="background:#ca6"></span>On boundary</span>
-  <span><span class="dot" style="background:#4a9"></span>All four locked — inscribed square</span>
+  <span><span class="dot" style="background:#4a9"></span>All four locked</span>
 </div>
 <div class="status" id="status">Expand the square — it scales down when it meets the boundary</div>
 
@@ -68,16 +80,101 @@ const VN=['A','B','C','D'],VC=['#e55','#ca6','#69a','#4a9'];
 
 function resize(){const mw=Math.min(window.innerWidth-40,700);W=cv.width=mw;H=cv.height=Math.round(mw*0.68);}
 
-function genCurve(){
-  curve=[];
-  const cx=W/2,cy=H/2,base=Math.min(W,H)*0.36;
-  const b=Array.from({length:5},()=>0.45+Math.random()*0.85);
-  for(let i=0;i<600;i++){
-    const t=i/600*Math.PI*2,r=base+b.reduce((s,v,j)=>s+base*0.14*v*Math.cos((j+2)*t+j*2.1),0);
-    curve.push({x:cx+r*Math.cos(t),y:cy+r*Math.sin(t)});
+function buildCurve(pts){
+  const sm=[];
+  for(let i=0;i<pts.length;i++){
+    const a=pts[(i-1+pts.length)%pts.length],b=pts[i],c=pts[(i+1)%pts.length];
+    sm.push({x:(a.x+2*b.x+c.x)/4,y:(a.y+2*b.y+c.y)/4});
   }
+  curve=sm;
   let sx=0,sy=0;for(const p of curve){sx+=p.x;sy+=p.y;}
   cen={x:sx/curve.length,y:sy/curve.length};wX=cen.x;wY=cen.y;
+}
+
+function genCurve(){
+  const type=document.getElementById('shapeType').value;
+  const cx=W/2,cy=H/2,base=Math.min(W,H)*0.34;
+  const N=800,pts=[];
+  switch(type){
+    case'random':{
+      const b=Array.from({length:5},()=>0.45+Math.random()*0.85);
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2,r=base+b.reduce((s,v,j)=>s+base*0.13*v*Math.cos((j+2)*t+j*2.1),0);
+        pts.push({x:cx+r*Math.cos(t),y:cy+r*Math.sin(t)});
+      }
+      break;
+    }
+    case'star':{
+      const n=4+Math.floor(Math.random()*3),inner=0.42+Math.random()*0.2,rot=Math.random()*Math.PI;
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2+rot;
+        const blend=(Math.sin(n*t)+1)/2;
+        const r=base*(inner+(1-inner)*blend);
+        pts.push({x:cx+r*Math.cos(t),y:cy+r*Math.sin(t)});
+      }
+      break;
+    }
+    case'ellipse':{
+      const rx=base*(0.55+Math.random()*0.5),ry=base*(0.4+Math.random()*0.5);
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2;
+        pts.push({x:cx+rx*Math.cos(t),y:cy+ry*Math.sin(t)});
+      }
+      break;
+    }
+    case'triangle':{
+      const rot=Math.random()*Math.PI*2;
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2;
+        const seg=Math.floor(t/(Math.PI*2/3));
+        const frac=(t%(Math.PI*2/3))/(Math.PI*2/3);
+        const a0=seg*Math.PI*2/3+rot,a1=a0+Math.PI*2/3;
+        pts.push({x:cx+base*0.88*(Math.cos(a0)*(1-frac)+Math.cos(a1)*frac),y:cy+base*0.88*(Math.sin(a0)*(1-frac)+Math.sin(a1)*frac)});
+      }
+      break;
+    }
+    case'crescent':{
+      const R=base*0.9,r2=base*0.62,offX=base*0.26;
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2;
+        const ox=cx+R*Math.cos(t),oy=cy+R*Math.sin(t);
+        const push=Math.max(0,(ox-(cx-offX+r2))/r2)*0.45;
+        pts.push({x:ox-push*(ox-(cx+offX)),y:oy-push*(oy-cy)*0.3});
+      }
+      break;
+    }
+    case'polygon':{
+      const n=5+Math.floor(Math.random()*4),rot=Math.random()*Math.PI*2;
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2+rot;
+        const seg=Math.floor(t/(Math.PI*2/n))%n;
+        const frac=(t%(Math.PI*2/n))/(Math.PI*2/n);
+        const a0=seg*Math.PI*2/n+rot,a1=a0+Math.PI*2/n;
+        pts.push({x:cx+base*0.85*(Math.cos(a0)*(1-frac)+Math.cos(a1)*frac),y:cy+base*0.85*(Math.sin(a0)*(1-frac)+Math.sin(a1)*frac)});
+      }
+      break;
+    }
+    case'teardrop':{
+      const ry=base*(0.72+Math.random()*0.22),rx=base*(0.48+Math.random()*0.22);
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2;
+        const px=cx+rx*Math.sin(t)*(1+0.32*Math.sin(t));
+        const py=cy+ry*(Math.cos(t)-0.18*Math.cos(2*t))*0.88;
+        pts.push({x:px,y:py});
+      }
+      break;
+    }
+    case'heart':{
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2;
+        const px=cx+base*0.68*Math.sin(t)**3;
+        const py=cy-base*0.58*(0.8125*Math.cos(t)-0.3125*Math.cos(2*t)-0.125*Math.cos(3*t)-0.0625*Math.cos(4*t));
+        pts.push({x:px,y:py});
+      }
+      break;
+    }
+  }
+  buildCurve(pts);
 }
 
 function inside(px,py){
@@ -89,38 +186,24 @@ function inside(px,py){
   return ins;
 }
 
-function nearestOn(px,py){
-  let best=Infinity,bx=0,by=0;
-  for(const p of curve){const d2=(p.x-px)**2+(p.y-py)**2;if(d2<best){best=d2;bx=p.x;by=p.y;}}
-  return{x:bx,y:by};
-}
-
-function distToNearest(px,py){const n=nearestOn(px,py);return Math.hypot(n.x-px,n.y-py);}
-
 function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y);}
 
-function rawV(cx,cy,sz,ang){
+function sqVerts(cx,cy,sz,ang){
+  // Vertices A,B,C,D placed at angles ang, ang+PI/2, ang+PI, ang+3PI/2 from centre
+  // Diagonal AC is in direction ang+PI (from A) to ang (from C), length = sz*sqrt(2)
+  // Actually: A at angle ang means A = centre + h*(cos ang, sin ang)
+  // So diagonal direction A->C = direction (ang+PI) which equals ang reversed
   const h=sz/Math.SQRT2;
   return [0,1,2,3].map(i=>({x:cx+h*Math.cos(ang+i*Math.PI/2),y:cy+h*Math.sin(ang+i*Math.PI/2)}));
 }
 
-// Scale square down until all vertices fit inside the curve
-function scaledVerts(cx,cy,sz,ang){
+function scaledSqSz(cx,cy,sz,ang){
   let s=sz;
-  for(let iter=0;iter<80;iter++){
-    const v=rawV(cx,cy,s,ang);
-    const allIn=v.every(p=>inside(p.x,p.y));
-    if(allIn)break;
-    s*=0.97;
-    if(s<1)break;
+  for(let i=0;i<120;i++){
+    if(sqVerts(cx,cy,s,ang).every(p=>inside(p.x,p.y)))return s;
+    s*=0.97;if(s<1)return 1;
   }
-  const v=rawV(cx,cy,s,ang);
-  const onBoundary=s<sz*0.98;
-  // Snap any still-outside vertex to nearest curve point
-  return v.map(p=>{
-    if(!inside(p.x,p.y)){const n=nearestOn(p.x,p.y);return{x:n.x,y:n.y,locked:true,scaledSz:s};}
-    return{...p,locked:onBoundary,scaledSz:s};
-  });
+  return s;
 }
 
 function setM(id,val,ok,warm){
@@ -134,10 +217,10 @@ function updateMeters(A,B,C,D){
   const dAC=dist(A,C),dBD=dist(B,D);
   const sp=Math.max(dAB,dBC,dCD,dDA)-Math.min(dAB,dBC,dCD,dDA);
   const dl=Math.abs(dAC-dBD);
-  const ok=sp<4&&dl<4;
-  setM('mAB',dAB,ok,sp<25);setM('mBC',dBC,ok,sp<25);
-  setM('mCD',dCD,ok,sp<25);setM('mDA',dDA,ok,sp<25);
-  setM('mAC',dAC,ok,dl<25);setM('mBD',dBD,ok,dl<25);
+  const ok=sp<2&&dl<2;
+  setM('mAB',dAB,ok,sp<20);setM('mBC',dBC,ok,sp<20);
+  setM('mCD',dCD,ok,sp<20);setM('mDA',dDA,ok,sp<20);
+  setM('mAC',dAC,ok,dl<20);setM('mBD',dBD,ok,dl<20);
   return ok;
 }
 
@@ -166,51 +249,48 @@ function draw(){
       ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(VN[i],p.x,p.y-15);
     });
     updateMeters(A,B,C,D);
-    const st=document.getElementById('status');
-    st.textContent='Inscribed square found — all four vertices on the boundary';
-    st.className='status found';
+    document.getElementById('status').textContent='Inscribed square found — all four vertices on the boundary';
+    document.getElementById('status').className='status found';
     return;
   }
 
-  const v=scaledVerts(sqX,sqY,sqSz,sqAng);
-  const allL=v.every(p=>p.locked);
-  const anyL=v.some(p=>p.locked);
-  const actualSz=v[0].scaledSz||sqSz;
+  if(!inside(sqX,sqY)){sqX=cen.x;sqY=cen.y;}
+  const actualSz=scaledSqSz(sqX,sqY,sqSz,sqAng);
+  const v=sqVerts(sqX,sqY,actualSz,sqAng);
+  const constrained=actualSz<sqSz*0.97;
 
   ctx.beginPath();ctx.moveTo(v[0].x,v[0].y);
   for(let i=1;i<4;i++)ctx.lineTo(v[i].x,v[i].y);
   ctx.closePath();
-  ctx.strokeStyle=allL?'#4a9':anyL?'#ca6':'rgba(100,160,240,0.5)';
-  ctx.lineWidth=allL?2:1.5;
-  ctx.setLineDash(allL?[]:[4,3]);ctx.stroke();ctx.setLineDash([]);
-  ctx.fillStyle=allL?'rgba(40,180,100,0.08)':'rgba(60,100,200,0.04)';ctx.fill();
+  ctx.strokeStyle=constrained?'#ca6':'rgba(100,160,240,0.5)';
+  ctx.lineWidth=1.5;ctx.setLineDash(constrained?[]:[4,3]);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(60,100,200,0.04)';ctx.fill();
 
   ctx.beginPath();ctx.moveTo(v[0].x,v[0].y);ctx.lineTo(v[2].x,v[2].y);
   ctx.moveTo(v[1].x,v[1].y);ctx.lineTo(v[3].x,v[3].y);
   ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=0.5;ctx.stroke();
 
   v.forEach((p,i)=>{
-    ctx.beginPath();ctx.arc(p.x,p.y,anyL?7:4,0,Math.PI*2);
-    ctx.fillStyle=anyL?(allL?VC[i]:'#ca6'):'rgba(180,180,200,0.4)';ctx.fill();
-    if(anyL){ctx.strokeStyle=allL?'#2a7':'#a84';ctx.lineWidth=1.5;ctx.stroke();}
+    ctx.beginPath();ctx.arc(p.x,p.y,constrained?7:4,0,Math.PI*2);
+    ctx.fillStyle=constrained?'#ca6':'rgba(180,180,200,0.4)';ctx.fill();
+    if(constrained){ctx.strokeStyle='#a84';ctx.lineWidth=1.5;ctx.stroke();}
     ctx.fillStyle='rgba(255,255,255,0.75)';ctx.font='10px Courier New';
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(VN[i],p.x,p.y-14);
   });
   ctx.beginPath();ctx.arc(sqX,sqY,4,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.18)';ctx.fill();
 
-  const ok=updateMeters(v[0],v[1],v[2],v[3]);
+  updateMeters(v[0],v[1],v[2],v[3]);
   const st=document.getElementById('status');
-  const lc=v.filter(p=>p.locked).length;
-  if(ok&&allL){st.textContent='Inscribed square found — all four vertices on the boundary';st.className='status found';}
-  else if(!anyL){st.textContent='Expand the square — it scales down when it meets the boundary';st.className='status';}
-  else if(allL){st.textContent='All four on boundary — distances not yet equal — try rotating';st.className='status warn';}
-  else{st.textContent='Square constrained by boundary — keep expanding or rotate';st.className='status warn';}
+  if(!constrained)st.textContent='Expand the square — it scales down when it meets the boundary';
+  else st.textContent='Square constrained — expand or rotate to find the inscribed position';
+  st.className=constrained?'status warn':'status';
 }
 
-function syncSliders(){
-  const sz=Math.round(sqSz),ang=Math.round(((sqAng*180/Math.PI)%360+360)%360);
-  document.getElementById('szSl').value=sz;document.getElementById('szV').textContent=sz;
-  document.getElementById('rtSl').value=ang;document.getElementById('rtV').textContent=ang+'°';
+function syncSliders(sz,angRad){
+  const szR=Math.round(sz);
+  const angDeg=Math.round(((angRad*180/Math.PI)%360+360)%360);
+  document.getElementById('szSl').value=szR;document.getElementById('szV').textContent=szR;
+  document.getElementById('rtSl').value=angDeg;document.getElementById('rtV').textContent=angDeg+'°';
 }
 
 function onSz(v){sqSz=+v;document.getElementById('szV').textContent=v;lockedFrame=null;draw();}
@@ -218,59 +298,86 @@ function onRt(v){sqAng=+v*Math.PI/180;document.getElementById('rtV').textContent
 
 function gp(e){const r=cv.getBoundingClientRect(),s=e.touches?e.touches[0]:e;return{x:s.clientX-r.left,y:s.clientY-r.top};}
 
+function startDragFromLocked(){
+  // Restore exact state — sqAng is already correct, do not recompute
+  sqX=lockedFrame.P.x;
+  sqY=lockedFrame.P.y;
+  sqSz=dist(lockedFrame.A,lockedFrame.C)/Math.SQRT2;
+  // sqAng was set by applyFrame and is correct — leave it alone
+  lockedFrame=null;
+}
+
 cv.addEventListener('mousedown',e=>{
   const p=gp(e);
-  if(Math.hypot(p.x-sqX,p.y-sqY)<Math.max(sqSz*0.5,30)){
+  const cx=lockedFrame?lockedFrame.P.x:sqX,cy=lockedFrame?lockedFrame.P.y:sqY;
+  const r=Math.max((lockedFrame?dist(lockedFrame.A,lockedFrame.C)/Math.SQRT2:sqSz)*0.5,30);
+  if(Math.hypot(p.x-cx,p.y-cy)<r){
+    if(lockedFrame)startDragFromLocked();
     dragging=true;dOX=p.x-sqX;dOY=p.y-sqY;
-    if(lockedFrame){
-      lockedFrame=null;
-      document.getElementById('status').textContent='Drag to reposition';
-      document.getElementById('status').className='status warn';
-    }
   }
 });
-cv.addEventListener('mousemove',e=>{if(!dragging)return;const p=gp(e);sqX=p.x-dOX;sqY=p.y-dOY;draw();});
+cv.addEventListener('mousemove',e=>{
+  if(!dragging)return;
+  const p=gp(e),nx=p.x-dOX,ny=p.y-dOY;
+  if(inside(nx,ny)){sqX=nx;sqY=ny;}
+  draw();
+});
 cv.addEventListener('mouseup',()=>dragging=false);
-cv.addEventListener('touchstart',e=>{e.preventDefault();const p=gp(e);if(Math.hypot(p.x-sqX,p.y-sqY)<Math.max(sqSz*0.5,30)){dragging=true;dOX=p.x-sqX;dOY=p.y-sqY;if(lockedFrame)lockedFrame=null;}},{passive:false});
-cv.addEventListener('touchmove',e=>{e.preventDefault();if(!dragging)return;const p=gp(e);sqX=p.x-dOX;sqY=p.y-dOY;draw();},{passive:false});
+cv.addEventListener('touchstart',e=>{
+  e.preventDefault();const p=gp(e);
+  const cx=lockedFrame?lockedFrame.P.x:sqX,cy=lockedFrame?lockedFrame.P.y:sqY;
+  const r=Math.max((lockedFrame?dist(lockedFrame.A,lockedFrame.C)/Math.SQRT2:sqSz)*0.5,30);
+  if(Math.hypot(p.x-cx,p.y-cy)<r){
+    if(lockedFrame)startDragFromLocked();
+    dragging=true;dOX=p.x-sqX;dOY=p.y-sqY;
+  }
+},{passive:false});
+cv.addEventListener('touchmove',e=>{
+  e.preventDefault();if(!dragging)return;
+  const p=gp(e),nx=p.x-dOX,ny=p.y-dOY;
+  if(inside(nx,ny)){sqX=nx;sqY=ny;}
+  draw();
+},{passive:false});
 cv.addEventListener('touchend',()=>dragging=false);
 
 function newCurve(){
   stopScan();lockedFrame=null;resize();genCurve();
-  sqX=cen.x;sqY=cen.y;sqSz=50;sqAng=0;syncSliders();
+  sqX=cen.x;sqY=cen.y;sqSz=50;sqAng=0;syncSliders(50,0);
   document.getElementById('status').textContent='Expand the square — it scales down when it meets the boundary';
   document.getElementById('status').className='status';
   ['mAB','mBC','mCD','mDA','mAC','mBD'].forEach(id=>{const el=document.getElementById(id);el.textContent='—';el.className='mval';});
   draw();
 }
 
-function resetSquare(){
-  stopScan();lockedFrame=null;sqX=cen.x;sqY=cen.y;sqSz=50;sqAng=0;syncSliders();draw();
-}
+function resetSquare(){stopScan();lockedFrame=null;sqX=cen.x;sqY=cen.y;sqSz=50;sqAng=0;syncSliders(50,0);draw();}
 
-function rayHits(ox,oy,dx,dy){
-  const hits=[];
+// Return the OUTERMOST intersection in the given direction (farthest from origin)
+// For concave shapes like stars this gives the spanning chord, not a short clip
+function rayOuter(ox,oy,dx,dy){
+  let best=null;
   for(let i=0;i<curve.length;i++){
     const j=(i+1)%curve.length,ax=curve[i].x,ay=curve[i].y,bx=curve[j].x,by=curve[j].y;
     const ex=bx-ax,ey=by-ay,den=dx*ey-dy*ex;
     if(Math.abs(den)<1e-9)continue;
     const t=((ax-ox)*ey-(ay-oy)*ex)/den,u=((ax-ox)*dy-(ay-oy)*dx)/den;
-    if(t>0.5&&u>=0&&u<=1)hits.push({x:ox+t*dx,y:oy+t*dy,t});
+    if(t>0.1&&u>=0&&u<=1){
+      if(!best||t>best.t)best={x:ox+t*dx,y:oy+t*dy,t};
+    }
   }
-  hits.sort((a,b)=>a.t-b.t);return hits;
+  return best;
 }
 
 function findCenter(ang,sx,sy){
   let cx=sx,cy=sy;
   const dx1=Math.cos(ang),dy1=Math.sin(ang),dx2=-dy1,dy2=dx1;
-  for(let i=0;i<40;i++){
-    const f1=rayHits(cx,cy,dx1,dy1),b1=rayHits(cx,cy,-dx1,-dy1);
-    if(!f1.length||!b1.length)return null;
-    const nx=(f1[0].x+b1[0].x)/2,ny=(f1[0].y+b1[0].y)/2;
-    const f2=rayHits(nx,ny,dx2,dy2),b2=rayHits(nx,ny,-dx2,-dy2);
-    if(!f2.length||!b2.length)return null;
-    cx=(f2[0].x+b2[0].x)/2;cy=(f2[0].y+b2[0].y)/2;
-    if(Math.hypot(cx-nx,cy-ny)<0.15)break;
+  for(let i=0;i<80;i++){
+    const f1=rayOuter(cx,cy,dx1,dy1),b1=rayOuter(cx,cy,-dx1,-dy1);
+    if(!f1||!b1)return null;
+    const nx=(f1.x+b1.x)/2,ny=(f1.y+b1.y)/2;
+    const f2=rayOuter(nx,ny,dx2,dy2),b2=rayOuter(nx,ny,-dx2,-dy2);
+    if(!f2||!b2)return null;
+    cx=(f2.x+b2.x)/2;cy=(f2.y+b2.y)/2;
+    if(Math.hypot(cx-nx,cy-ny)<0.02)break;
   }
   return{x:cx,y:cy};
 }
@@ -278,46 +385,67 @@ function findCenter(ang,sx,sy){
 function computeFrame(ang,sx,sy){
   const P=findCenter(ang,sx,sy);if(!P)return null;
   const dx1=Math.cos(ang),dy1=Math.sin(ang),dx2=-dy1,dy2=dx1;
-  const f1=rayHits(P.x,P.y,dx1,dy1),b1=rayHits(P.x,P.y,-dx1,-dy1);
-  if(!f1.length||!b1.length)return null;
-  const f2=rayHits(P.x,P.y,dx2,dy2),b2=rayHits(P.x,P.y,-dx2,-dy2);
-  if(!f2.length||!b2.length)return null;
-  const A={x:b1[0].x,y:b1[0].y},C={x:f1[0].x,y:f1[0].y};
-  const B={x:b2[0].x,y:b2[0].y},D={x:f2[0].x,y:f2[0].y};
-  return{A,B,C,D,P,signedDelta:dist(A,C)-dist(B,D),ang};
+  // Use outermost hits for spanning chord across full shape
+  const f1=rayOuter(P.x,P.y,dx1,dy1),b1=rayOuter(P.x,P.y,-dx1,-dy1);
+  if(!f1||!b1)return null;
+  const f2=rayOuter(P.x,P.y,dx2,dy2),b2=rayOuter(P.x,P.y,-dx2,-dy2);
+  if(!f2||!b2)return null;
+  const A={x:b1.x,y:b1.y},C={x:f1.x,y:f1.y};
+  const B={x:b2.x,y:b2.y},D={x:f2.x,y:f2.y};
+  const dAC=dist(A,C),dBD=dist(B,D);
+  return{A,B,C,D,P,signedDelta:dAC-dBD,ang};
 }
 
 function applyFrame(fr){
   lockedFrame=fr;
   sqX=fr.P.x;sqY=fr.P.y;
-  sqSz=dist(fr.A,fr.C)/Math.SQRT2;
-  sqAng=fr.ang+Math.PI/4;
-  syncSliders();
+  const sz=dist(fr.A,fr.C)/Math.SQRT2;
+  sqSz=sz;
+  // sqVerts places vertex A at angle sqAng from centre.
+  // In computeFrame, A is the backward hit — direction from P to A is -dx1 = -(cos ang, sin ang)
+  // = (cos(ang+PI), sin(ang+PI)), so A sits at angle (ang+PI) from P.
+  // Therefore sqAng = fr.ang + PI  (so vertex 0 = A matches the found A position)
+  sqAng=fr.ang+Math.PI;
+  syncSliders(sz,sqAng);
 }
 
 function bisect(t1,t2,sd1,wx1,wy1,wx2,wy2){
   let lo=t1,hi=t2,sdLo=sd1,lwx=wx1,lwy=wy1,hwx=wx2,hwy=wy2;
-  for(let i=0;i<30;i++){
+  for(let i=0;i<60;i++){
     const tm=(lo+hi)/2,mwx=(lwx+hwx)/2,mwy=(lwy+hwy)/2;
-    const vm=computeFrame(tm,mwx,mwy);if(!vm)break;
-    if(Math.abs(vm.signedDelta)<0.3){applyFrame(vm);return true;}
-    if(sdLo*vm.signedDelta<0){hi=tm;hwx=vm.P.x;hwy=vm.P.y;}
+    const vm=computeFrame(tm,mwx,mwy);
+    if(!vm){// can't compute — narrow from hi side
+      hi=tm;continue;
+    }
+    if(Math.abs(vm.signedDelta)<0.05){applyFrame(vm);return true;}
+    if(sdLo*vm.signedDelta<=0){hi=tm;hwx=vm.P.x;hwy=vm.P.y;}
     else{lo=tm;sdLo=vm.signedDelta;lwx=vm.P.x;lwy=vm.P.y;}
   }
+  // RECTIFIED FIX:
+  const finalVm = computeFrame((lo+hi)/2, (lwx+hwx)/2, (lwy+hwy)/2);
+  if (finalVm && Math.abs(finalVm.signedDelta) < 1.0) { 
+    // Only apply if it's actually a square (delta near zero)
+    applyFrame(finalVm); 
+    return true;
+  }
+  // If it's a rhombus (delta too large), return false so the scan continues
   return false;
 }
 
 function scanStep(){
   if(!scanning)return;
-  scanT+=0.005;
-  if(scanT>Math.PI/2+0.05){stopScan();document.getElementById('status').textContent='Scan complete — try new curve';return;}
+  scanT+=0.004;
+  if(scanT > Math.PI/2 + 0.05){
+    stopScan();document.getElementById('status').textContent='Scan complete — try new curve';return;
+  }
   const v=computeFrame(scanT,wX,wY);
   if(v){
     wX=v.P.x;wY=v.P.y;
+    // During scan show approximate position using correct angle formula
     sqX=v.P.x;sqY=v.P.y;
     sqSz=dist(v.A,v.C)/Math.SQRT2;
-    sqAng=scanT+Math.PI/4;
-    syncSliders();
+    sqAng=v.ang+Math.PI;
+    syncSliders(sqSz,sqAng);
     if(prevSD!==null&&prevSD*v.signedDelta<0){
       if(bisect(prevT,scanT,prevSD,prevWX,prevWY,v.P.x,v.P.y)){
         stopScan();
@@ -336,7 +464,7 @@ function toggleScan(){scanning?stopScan():startScan();}
 
 function startScan(){
   lockedFrame=null;scanning=true;scanT=0;prevSD=null;prevT=null;
-  wX=cen.x;wY=cen.y;sqX=cen.x;sqY=cen.y;sqSz=50;sqAng=0;syncSliders();
+  wX=cen.x;wY=cen.y;sqX=cen.x;sqY=cen.y;sqSz=50;sqAng=0;syncSliders(50,0);
   document.getElementById('scanBtn').textContent='Stop';document.getElementById('scanBtn').classList.add('active');
   document.getElementById('status').textContent='Scanning for inscribed square...';document.getElementById('status').className='status';
   scanId=requestAnimationFrame(scanStep);
