@@ -20,8 +20,10 @@ IE : If you have two perpendicular chords going through any Jordan curve and you
 ![Inscribed Square Viewfinder Demo](viewfinder_demo.gif)
 
 ## Interactive Demonstration
-You can view the **Inscribed Square Viewfinder** in action here:
+You can view the **Inscribed Square & Cube Viewfinder** in action here:
 [Run the Live Viewfinder](https://thor110.github.io/InscribedSquareProblem/)
+
+Note that the viewfinders are merely demonstration while the shape and space finders more accurately showcase the method.
 
 ## Expansion Paradox
 Consider a square expanding from any interior point within a Jordan curve. At a scale near zero, the square is entirely contained. At a scale larger than the curve's maximum diameter, the square entirely encloses the curve. Because the curve is a continuous, non-self-intersecting boundary, the transition from 'Inside' to 'Outside' necessitates an intermediate state where all four vertices intersect the boundary. Because the Jordan curve forbids self-intersection, this intersection cannot occur at a side length of zero, thereby guaranteeing a non-degenerate inscribed square.
