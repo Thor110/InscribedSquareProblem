@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inscribed Viewfinder v32</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0a0a0f;color:#e0ddd8;font-family:'Courier New',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;}
+  h1{font-size:13px;letter-spacing:0.2em;text-transform:uppercase;color:#666;margin-bottom:6px;}
+  .sub{font-size:11px;color:#444;margin-bottom:16px;letter-spacing:0.1em;}
+  #canvas{display:block;background:#0d0d14;border:1px solid #1e1e2a;cursor:crosshair;touch-action:none;}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;justify-content:center;max-width:700px;}
+  button{background:transparent;border:1px solid #2a2a3a;color:#888;padding:6px 14px;font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
+  button:hover{border-color:#555;color:#ccc;background:#111;}
+  button.active{border-color:#4a9;color:#4a9;background:rgba(74,169,120,0.05);}
+  select{background:#0d0d14;border:1px solid #2a2a3a;color:#888;padding:6px 10px;font-family:'Courier New',monospace;font-size:11px;cursor:pointer;text-transform:uppercase;}
+  .slrow{display:flex;align-items:center;gap:10px;font-size:11px;color:#555;}
+  input[type=range]{width:120px;accent-color:#4a9;}
+  .meters{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px;max-width:700px;width:100%;}
+  .meter{background:#0d0d14;border:1px solid #1a1a24;padding:6px 9px;}
+  .mlabel{font-size:9px;color:#3a3a4a;letter-spacing:0.1em;text-transform:uppercase;}
+  .mval{font-size:13px;font-weight:bold;color:#555;margin-top:1px;transition:color 0.2s;}
+  .mval.match{color:#4a9;}
+  .status{margin-top:8px;font-size:11px;color:#3a3a4a;letter-spacing:0.12em;text-transform:uppercase;min-height:16px;}
+  .status.found{color:#4a9;}
+</style>
+</head>
+<body>
+<h1>Inscribed Viewfinder</h1>
+<div class="sub">v32 — Fully State-Locked Suite · Deterministic Latch</div>
+<canvas id="canvas"></canvas>
+<div class="controls">
+  <select id="insType" onchange="resetJig()">
+    <option value="square">Inscribed Square</option>
+    <option value="triangle">Inscribed Triangle</option>
+  </select>
+  <select id="shapeType" onchange="newCurve()">
+    <option value="random">Random blob</option>
+    <option value="star">Star</option>
+    <option value="ellipse">Ellipse</option>
+    <option value="triangle">Triangle-like</option>
+    <option value="crescent">Crescent</option>
+    <option value="polygon">Polygon</option>
+    <option value="teardrop">Teardrop</option>
+    <option value="heart">Heart-like</option>
+  </select>
+  <button onclick="newCurve()">New curve</button>
+  <button onclick="toggleScan()" id="scanBtn">Auto-find Equilibrium</button>
+  <div class="slrow">Rotate<input type="range" id="rtSl" min="0" max="360" value="0" step="1" oninput="onRt(this.value)"><span id="rtV">0°</span></div>
+</div>
+<div class="meters" id="meterGrid"></div>
+<div class="status" id="status">Ready</div>
+
+<script>
+const cv=document.getElementById('canvas'),ctx=cv.getContext('2d');
+let W,H,curve=[],cen={x:0,y:0},jigX=0,jigY=0,jigAng=0;
+let scanning=false,scanId=null;
+let points=[], equilibriumFound=false, prevDelta=null, prevAng=0;
+
+function resize(){const mw=Math.min(window.innerWidth-40,700);W=cv.width=mw;H=cv.height=Math.round(mw*0.68);}
+
+function buildCurve(pts){
+  curve=pts;
+  let sx=0,sy=0;for(const p of curve){sx+=p.x;sy+=p.y;}
+  cen={x:sx/curve.length,y:sy/curve.length};
+}
+
+function genCurve(){
+  const type=document.getElementById('shapeType').value;
+  const cx=W/2,cy=H/2,base=Math.min(W,H)*0.34,N=800,pts=[];
+  switch(type){
+    case'random':{
+      const b=Array.from({length:5},()=>0.45+Math.random()*0.85);
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2,r=base+b.reduce((s,v,j)=>s+base*0.13*v*Math.cos((j+2)*t+j*2.1),0);
+        pts.push({x:cx+r*Math.cos(t),y:cy+r*Math.sin(t)});
+      }
+      break;
+    }
+    case'star':{
+      const n=4+Math.floor(Math.random()*3),inner=0.42+Math.random()*0.2,rot=Math.random()*Math.PI;
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2+rot, blend=(Math.sin(n*t)+1)/2;
+        const r=base*(inner+(1-inner)*blend);
+        pts.push({x:cx+r*Math.cos(t),y:cy+r*Math.sin(t)});
+      }
+      break;
+    }
+    case'ellipse':{
+      const rx=base*(0.55+Math.random()*0.5),ry=base*(0.4+Math.random()*0.5);
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2;
+        pts.push({x:cx+rx*Math.cos(t),y:cy+ry*Math.sin(t)});
+      }
+      break;
+    }
+    case'triangle':{
+      const rot=Math.random()*Math.PI*2;
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2, seg=Math.floor(t/(Math.PI*2/3)), frac=(t%(Math.PI*2/3))/(Math.PI*2/3);
+        const a0=seg*Math.PI*2/3+rot,a1=a0+Math.PI*2/3;
+        pts.push({x:cx+base*0.88*(Math.cos(a0)*(1-frac)+Math.cos(a1)*frac),y:cy+base*0.88*(Math.sin(a0)*(1-frac)+Math.sin(a1)*frac)});
+      }
+      break;
+    }
+    case'crescent':{
+      const R=base*0.9,r2=base*0.62,offX=base*0.26;
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2, ox=cx+R*Math.cos(t),oy=cy+R*Math.sin(t);
+        const push=Math.max(0,(ox-(cx-offX+r2))/r2)*0.45;
+        pts.push({x:ox-push*(ox-(cx+offX)),y:oy-push*(oy-cy)*0.3});
+      }
+      break;
+    }
+    case'polygon':{
+      const n=5+Math.floor(Math.random()*4),rot=Math.random()*Math.PI*2;
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2+rot, seg=Math.floor(t/(Math.PI*2/n))%n, frac=(t%(Math.PI*2/n))/(Math.PI*2/n);
+        const a0=seg*Math.PI*2/n+rot,a1=a0+Math.PI*2/n;
+        pts.push({x:cx+base*0.85*(Math.cos(a0)*(1-frac)+Math.cos(a1)*frac),y:cy+base*0.85*(Math.sin(a0)*(1-frac)+Math.sin(a1)*frac)});
+      }
+      break;
+    }
+    case'teardrop':{
+      const ry=base*(0.72+Math.random()*0.22),rx=base*(0.48+Math.random()*0.22);
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2, px=cx+rx*Math.sin(t)*(1+0.32*Math.sin(t)), py=cy+ry*(Math.cos(t)-0.18*Math.cos(2*t))*0.88;
+        pts.push({x:px,y:py});
+      }
+      break;
+    }
+    case'heart':{
+      for(let i=0;i<N;i++){
+        const t=i/N*Math.PI*2, px=cx+base*0.68*Math.sin(t)**3, py=cy-base*0.58*(0.8125*Math.cos(t)-0.3125*Math.cos(2*t)-0.125*Math.cos(3*t)-0.0625*Math.cos(4*t));
+        pts.push({x:px,y:py});
+      }
+      break;
+    }
+  }
+  buildCurve(pts);
+}
+
+function rayOuter(ox,oy,ang){
+  const dx=Math.cos(ang),dy=Math.sin(ang);
+  let best=null;
+  for(let i=0;i<curve.length;i++){
+    const j=(i+1)%curve.length,ax=curve[i].x,ay=curve[i].y,bx=curve[j].x,by=curve[j].y;
+    const ex=bx-ax,ey=by-ay,den=dx*ey-dy*ex;
+    if(Math.abs(den)<1e-9)continue;
+    const t=((ax-ox)*ey-(ay-oy)*ex)/den,u=((ax-ox)*dy-(ay-oy)*dx)/den;
+    if(t>0.1&&u>=0&&u<=1){if(!best||t>best.t)best={x:ox+t*dx,y:oy+t*dy,t};}
+  }
+  return best;
+}
+
+function dist(p1, p2){return Math.hypot(p1.x-p2.x, p1.y-p2.y);}
+
+function updateMeters(type, pts, cX, cY, forceGreen){
+  const grid=document.getElementById('meterGrid'); grid.innerHTML='';
+  let matchFound = false, currentDelta = 0;
+  
+  if(type === 'square'){
+    const dAC=dist(pts[0],pts[2]), dBD=dist(pts[1],pts[3]);
+    currentDelta = dAC - dBD;
+    const dAB=dist(pts[0],pts[1]), dBC=dist(pts[1],pts[2]);
+    matchFound = Math.abs(currentDelta) < 0.12 && Math.abs(dAB-dBC) < 0.12;
+
+    const data=[['Side AB',dAB],['Side BC',dBC],['Side CD',dist(pts[2],pts[3])],['Side DA',dist(pts[3],pts[0])],['Diag A-C',dAC],['Diag B-D',dBD]];
+    data.forEach(d=>{
+      const m=document.createElement('div');m.className='meter';
+      const isGreen = forceGreen || (matchFound && Math.abs(currentDelta) < 0.4);
+      m.innerHTML=`<div class="mlabel">${d[0]}</div><div class="mval ${isGreen?'match':''}">${d[1].toFixed(2)}</div>`;
+      grid.appendChild(m);
+    });
+  } else {
+    const r0 = dist({x:cX,y:cY}, pts[0]), r1 = dist({x:cX,y:cY}, pts[1]);
+    currentDelta = r0 - r1;
+    const dAB=dist(pts[0],pts[1]), dBC=dist(pts[1],pts[2]), dCA=dist(pts[2],pts[0]);
+    const avg=(dAB+dBC+dCA)/3, err=Math.max(Math.abs(dAB-avg),Math.abs(dBC-avg),Math.abs(dCA-avg));
+    matchFound = err < 0.1;
+    const data=[['Side AB',dAB],['Side BC',dBC],['Side CA',dCA]];
+    data.forEach(d=>{
+      const m=document.createElement('div');m.className='meter';
+      const isGreen = forceGreen || matchFound;
+      m.innerHTML=`<div class="mlabel">${d[0]}</div><div class="mval ${isGreen?'match':''}">${d[1].toFixed(2)}</div>`;
+      grid.appendChild(m);
+    });
+  }
+  return {matchFound, currentDelta};
+}
+
+function calculateState(ang, ox, oy, iters=24){
+  const type=document.getElementById('insType').value, numRays=type==='square'?4:3, step=Math.PI*2/numRays;
+  let tx=ox, ty=oy, pts=[];
+  for(let iter=0; iter<iters; iter++){ 
+    pts=[];
+    for(let i=0; i<numRays; i++){
+      const hit=rayOuter(tx,ty,ang+i*step);
+      if(!hit) return null;
+      pts.push(hit);
+    }
+    let targetX=0, targetY=0;
+    if(type==='square'){
+      const m1={x:(pts[0].x+pts[2].x)/2, y:(pts[0].y+pts[2].y)/2}, m2={x:(pts[1].x+pts[3].x)/2, y:(pts[1].y+pts[3].y)/2};
+      targetX=(m1.x+m2.x)/2; targetY=(m1.y+m2.y)/2;
+    } else { pts.forEach(p=>{targetX+=p.x;targetY+=p.y;}); targetX/=3; targetY/=3; }
+    tx+=(targetX-tx)*0.6; ty+=(targetY-ty)*0.6;
+  }
+  return {pts, tx, ty};
+}
+
+function updateJig(forceGreen = false){
+  const res = calculateState(jigAng, jigX, jigY, forceGreen ? 32 : 24);
+  if(!res) return;
+  points = res.pts; jigX = res.tx; jigY = res.ty;
+  const {matchFound, currentDelta} = updateMeters(document.getElementById('insType').value, points, jigX, jigY, forceGreen);
+  equilibriumFound = forceGreen || matchFound;
+  const st=document.getElementById('status');
+  if(equilibriumFound){st.textContent='Perfect Symmetry Locked';st.className='status found';}
+  else{st.textContent='Rattling toward equilibrium...';st.className='status';}
+  return currentDelta;
+}
+
+function draw(forceGreen = false){
+  ctx.clearRect(0,0,W,H);
+  ctx.beginPath();ctx.moveTo(curve[0].x,curve[0].y);
+  for(const p of curve)ctx.lineTo(p.x,p.y);
+  ctx.closePath();ctx.fillStyle='rgba(20,30,50,0.6)';ctx.fill();
+  ctx.strokeStyle='#2a4a7a';ctx.lineWidth=2;ctx.stroke();
+
+  const currentDelta = updateJig(forceGreen);
+
+  ctx.setLineDash([2,2]); ctx.strokeStyle='rgba(255,255,255,0.08)';
+  const type=document.getElementById('insType').value, numRays=type==='square'?4:3, step=Math.PI*2/numRays;
+  for(let i=0;i<(numRays===4?2:3);i++){
+    const ang=jigAng+i*step, dx=Math.cos(ang)*W, dy=Math.sin(ang)*W;
+    ctx.beginPath();ctx.moveTo(jigX-dx,jigY-dy);ctx.lineTo(jigX+dx,jigY+dy);ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);
+  for(let i=1;i<points.length;i++)ctx.lineTo(points[i].x,points[i].y);
+  ctx.closePath();ctx.strokeStyle='#4a9';ctx.lineWidth=2.5;ctx.stroke();
+  ctx.fillStyle='rgba(74,153,120,0.1)';ctx.fill();
+  points.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);ctx.fillStyle='#ca6';ctx.fill();});
+  ctx.beginPath();ctx.arc(jigX,jigY,3.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+  return currentDelta;
+}
+
+function onRt(v){jigAng=+v*Math.PI/180;document.getElementById('rtV').textContent=v+'°';equilibriumFound=false;draw();}
+
+function stopScan(){
+  scanning=false; cancelAnimationFrame(scanId); 
+  const btn = document.getElementById('scanBtn');
+  btn.textContent='Auto-find Equilibrium';
+  btn.classList.remove('active');
+}
+
+function resetJig(){
+  stopScan(); // RECTIFIED: Stop scan on shape change
+  jigX=cen.x;jigY=cen.y;jigAng=0;
+  document.getElementById('rtSl').value=0; document.getElementById('rtV').textContent='0°';
+  prevDelta=null; equilibriumFound=false;
+  document.getElementById('meterGrid').innerHTML = '';
+  const st = document.getElementById('status');
+  st.textContent = 'Ready'; st.className = 'status';
+  draw(); 
+}
+
+function newCurve(){
+  stopScan(); // RECTIFIED: Stop scan on curve change
+  genCurve(); resetJig();
+}
+
+function toggleScan(){if(scanning)stopScan(); else{scanning=true;prevDelta=null;document.getElementById('scanBtn').textContent='Stop Scan';document.getElementById('scanBtn').classList.add('active');scanLoop();}}
+
+function scanLoop(){
+  if(!scanning)return;
+  const currentDelta = draw();
+  if(prevDelta !== null && prevDelta * currentDelta < 0){
+    let low = prevAng, high = jigAng;
+    for(let i=0; i<24; i++){ 
+      let mid = (low+high)/2;
+      const midRes = calculateState(mid, jigX, jigY, 32);
+      const {matchFound, currentDelta: midDelta} = updateMeters(document.getElementById('insType').value, midRes.pts, midRes.tx, midRes.ty, false);
+      if(prevDelta * midDelta < 0) high = mid; else low = mid;
+    }
+    jigAng = (low+high)/2;
+    draw(true); 
+    stopScan(); // RECTIFIED: Stop scan on finish
+    return;
+  }
+  prevDelta = currentDelta; prevAng = jigAng;
+  jigAng += 0.012;
+  document.getElementById('rtSl').value=Math.round((jigAng*180/Math.PI)%360);
+  document.getElementById('rtV').textContent=document.getElementById('rtSl').value+'°';
+  scanId=requestAnimationFrame(scanLoop);
+}
+
+function mainLoop(){if(!scanning)draw();requestAnimationFrame(mainLoop);}
+
+let dragging=false;
+cv.addEventListener('mousedown',()=>dragging=true);
+window.addEventListener('mouseup',()=>dragging=false);
+cv.addEventListener('mousemove',e=>{if(!dragging)return;const r=cv.getBoundingClientRect();jigX=e.clientX-r.left;jigY=e.clientY-r.top;draw();});
+
+resize();newCurve();
+mainLoop();
+</script>
+</body>
+</html>
