@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inscribed Cube Viewfinder v19</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0a0a0f;color:#e0ddd8;font-family:'Courier New',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:16px;}
+  h1{font-size:13px;letter-spacing:0.2em;text-transform:uppercase;color:#666;margin-bottom:6px;}
+  .sub{font-size:11px;color:#444;margin-bottom:16px;letter-spacing:0.1em;text-align:center;}
+  canvas{display:block;background:#0d0d14;border:1px solid #1e1e2a; border-radius:4px; cursor: grab;}
+  canvas:active{cursor: grabbing;}
+  .controls{display:flex;flex-direction:column;align-items:center;gap:15px;margin-top:15px;}
+  .btn-group{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+  button{background:transparent;border:1px solid #2a2a3a;color:#888;padding:6px 14px;font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
+  button:hover{border-color:#555;color:#ccc;background:#111;}
+  button.active{border-color:#4a9;color:#4a9;}
+  select{background:#0d0d14;border:1px solid #2a2a3a;color:#888;padding:6px 10px;font-family:'Courier New',monospace;font-size:11px;cursor:pointer;text-transform:uppercase;}
+  .sl-group{display:grid;grid-template-columns: repeat(2, 1fr); gap:15px; justify-content:center;}
+  .slrow{display:flex;align-items:center;gap:10px;font-size:11px;color:#555;}
+  .slrow span{display:inline-block;width:35px;text-align:right;}
+  input[type=range]{width:120px;accent-color:#4a9;}
+  .meters{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:8px;max-width:440px;width:100%;}
+  .meter{background:#0d0d14;border:1px solid #1a1a24;padding:6px 9px;}
+  .mlabel{font-size:9px;color:#3a3a4a;letter-spacing:0.1em;text-transform:uppercase;}
+  .mval{font-size:13px;font-weight:bold;color:#555;margin-top:1px;}
+  .status{margin-top:10px; font-size:10px; color:#4a9; letter-spacing:0.05em; text-transform:uppercase; height:15px;}
+</style>
+</head>
+<body>
+<h1>Inscribed Cube Viewfinder</h1>
+<div class="sub">Edward James Gordon — Inscribed Cube Problem</div>
+
+<canvas id="c3d" width="440" height="400"></canvas>
+
+<div class="controls">
+  <div class="btn-group">
+    <select id="surfType" onchange="newSurface()">
+      <option value="ellipsoid">Ellipsoid</option>
+      <option value="blob">Random blob</option>
+      <option value="bumpy">Bumpy sphere</option>
+      <option value="star3d">3D Star</option>
+      <option value="heart">Heart-like</option>
+      <option value="ring">Ring-like</option>
+      <option value="cube">Cube-like</option>
+    </select>
+    <button onclick="newSurface()">New surface</button>
+    <button onclick="toggleScan()" id="scanBtn">Auto-find Cube</button>
+  </div>
+
+  <div class="sl-group">
+    <div class="slrow">Pitch<input type="range" id="pitchSl" min="0" max="180" value="45" oninput="onUIChange()"><span id="pitchV">45°</span></div>
+    <div class="slrow">Roll<input type="range" id="rollSl" min="0" max="180" value="0" oninput="onUIChange()"><span id="rollV">0°</span></div>
+    <div class="slrow">Yaw<input type="range" id="yawSl" min="0" max="360" value="0" oninput="onUIChange()"><span id="yawV">0°</span></div>
+    <div class="slrow">Ghost<input type="range" id="alphaSl" min="0" max="100" value="25" oninput="onUIChange()"><span id="alphaV">25%</span></div>
+  </div>
+</div>
+
+<div class="meters">
+  <div class="meter"><div class="mlabel">Cube Side Length</div><div class="mval" id="mSz">—</div></div>
+  <div class="meter"><div class="mlabel">Max Found Scale</div><div class="mval" id="mMax">—</div></div>
+</div>
+<div class="status" id="status">Ready</div>
+
+<script>
+const c3d=document.getElementById('c3d'),x3=c3d.getContext('2d');
+let surface=[], scanning=false, scanId=null, N=32, maxFoundSz=0, scanCounter=0;
+let bestCX=0, bestCY=0, bestCZ=0, bestP=0.78, bestR=0, bestY=0; 
+const SCAN_LIMIT = 800; 
+let viewPitch = 0.4, viewYaw = 0.6, isDragging = false, lastMouseX = 0, lastMouseY = 0;
+let gridR = [];
+
+function genSurface(){
+  const type=document.getElementById('surfType').value;
+  gridR = []; surface = [];
+  const rows = N + 1, cols = 2 * N + 1;
+
+  // Randomized Seeds
+  const rx = 0.7+Math.random()*0.4, ry = 0.9+Math.random()*0.5, rz = 0.7+Math.random()*0.4;
+  const blobFreq = Array.from({length:5},()=>({f:2+Math.random()*2, a:0.08+Math.random()*0.1, p:Math.random()*6}));
+  const bumpyF1 = 3 + Math.floor(Math.random()*5), bumpyF2 = 3 + Math.floor(Math.random()*5);
+  const heartAmp = 0.3 + Math.random()*0.2;
+  const ringAmp = 0.2 + Math.random()*0.3;
+  const starN = 4 + Math.floor(Math.random()*3);
+  const cubePwr = 0.2 + Math.random()*0.35;
+
+  for(let i = 0; i < rows; i++){
+    gridR[i] = [];
+    const phi = (i / N) * Math.PI; 
+    for(let j = 0; j < cols; j++){
+      const theta = (j / (2 * N)) * Math.PI * 2;
+      let r = 1, x, y, z;
+
+      switch(type) {
+        case 'ellipsoid':
+          x = rx * Math.sin(phi) * Math.cos(theta); y = ry * Math.cos(phi); z = rz * Math.sin(phi) * Math.sin(theta);
+          r = Math.hypot(x, y, z); break;
+        case 'blob':
+          r = 1; for(const h of blobFreq) r += h.a * Math.sin(Math.round(h.f) * phi + h.p) * Math.cos(Math.round(h.f) * theta + h.p);
+          x = r * Math.sin(phi) * Math.cos(theta); y = r * Math.cos(phi); z = r * Math.sin(phi) * Math.sin(theta); break;
+        case 'bumpy':
+          r = 1 + 0.15 * Math.sin(bumpyF1 * phi) * Math.cos(bumpyF2 * theta);
+          x = r * Math.sin(phi) * Math.cos(theta); y = r * Math.cos(phi); z = r * Math.sin(phi) * Math.sin(theta); break;
+        case 'star3d':
+          r = 0.8 + 0.4 * Math.pow(Math.abs(Math.sin(starN * phi) * Math.cos(starN * theta)), 0.6);
+          x = r * Math.sin(phi) * Math.cos(theta); y = r * Math.cos(phi); z = r * Math.sin(phi) * Math.sin(theta); break;
+        case 'heart':
+          r = 1.0 + heartAmp * (1 - Math.sin(phi)) * Math.cos(theta);
+          x = r * Math.sin(phi) * Math.cos(theta); y = r * Math.cos(phi); z = r * Math.sin(phi) * Math.sin(theta); break;
+        case 'ring':
+          r = 1 + ringAmp * Math.sin(phi) * Math.cos(2 * theta);
+          x = r * Math.sin(phi) * Math.cos(theta); y = r * Math.cos(phi); z = r * Math.sin(phi) * Math.sin(theta); break;
+        case 'cube':
+          const cp = Math.cos(phi - Math.PI/2), sp = Math.sin(phi - Math.PI/2), ct = Math.cos(theta), st = Math.sin(theta);
+          x = Math.sign(cp * ct) * Math.pow(Math.abs(cp * ct), cubePwr);
+          y = Math.sign(sp) * Math.pow(Math.abs(sp), cubePwr);
+          z = Math.sign(cp * st) * Math.pow(Math.abs(cp * st), cubePwr);
+          r = Math.hypot(x, y, z); break;
+      }
+      gridR[i][j] = r; surface.push({x, y, z, phi, theta});
+    }
+    if(i === 0 || i === rows-1) { for(let j=1; j<cols; j++) gridR[i][j] = gridR[i][0]; }
+  }
+}
+
+function project(p,W,H){
+  let x1 = p.x*Math.cos(viewYaw) + p.z*Math.sin(viewYaw), z1 = -p.x*Math.sin(viewYaw) + p.z*Math.cos(viewYaw);
+  let y2 = p.y*Math.cos(viewPitch) - z1*Math.sin(viewPitch), z2 = p.y*Math.sin(viewPitch) + z1*Math.cos(viewPitch);
+  const f=2.5/(3.5-z2);
+  return{sx:W/2+x1*f*H*0.4, sy:H/2-y2*f*H*0.4, depth: z2};
+}
+
+function isInside3D(p) {
+  const rV = Math.hypot(p.x, p.y, p.z);
+  const phi = Math.acos(Math.max(-1, Math.min(1, p.y / (rV || 1))));
+  const theta = (Math.atan2(p.z, p.x) + Math.PI * 2) % (Math.PI * 2);
+  const i = (phi / Math.PI) * N, j = (theta / (Math.PI * 2)) * (2 * N);
+  const i0 = Math.floor(i), i1 = Math.min(N, i0 + 1), j0 = Math.floor(j), j1 = (j0 + 1) % (2 * N);
+  const fI = i - i0, fJ = j - j0;
+  const r00 = gridR[i0][j0], r01 = gridR[i0][j1], r10 = gridR[i1][j0], r11 = gridR[i1][j1];
+  const rSkin = (r00 * (1 - fJ) + r01 * fJ) * (1 - fI) + (r10 * (1 - fJ) + r11 * fJ) * fI;
+  return rV <= rSkin * 0.985; // Adjusted buffer for visual stability
+}
+
+function getCubeVerts(cx, cy, cz, sz, pitch, roll, yaw) {
+  const h = sz / 2;
+  const corners = [{x:-h,y:-h,z:-h}, {x:h,y:-h,z:-h}, {x:h,y:h,z:-h}, {x:-h,y:h,z:-h}, {x:-h,y:-h,z:h}, {x:h,y:-h,z:h}, {x:h,y:h,z:h}, {x:-h,y:h,z:h}];
+  return corners.map(p => {
+    let {x, y, z} = p;
+    let y1 = y*Math.cos(pitch)-z*Math.sin(pitch), z1 = y*Math.sin(pitch)+z*Math.cos(pitch);
+    let x2 = x*Math.cos(roll)-y1*Math.sin(roll), y2 = x*Math.sin(roll)+y1*Math.cos(roll);
+    let x3 = x2*Math.cos(yaw)+z1*Math.sin(yaw), z3 = -x2*Math.sin(yaw)+z1*Math.cos(yaw);
+    return { x: x3 + cx, y: y2 + cy, z: z3 + cz };
+  });
+}
+
+function findMaxCubeScale(cx, cy, cz, p, r, y) {
+  let lo = 0, hi = 2.0;
+  for(let i=0; i<24; i++){
+    let m = (lo+hi)/2;
+    if(getCubeVerts(cx, cy, cz, m, p, r, y).every(v => isInside3D(v))) lo = m; else hi = m;
+  }
+  return lo;
+}
+
+function draw3D() {
+  const W = c3d.width, H = c3d.height; x3.clearRect(0, 0, W, H);
+  const cP = document.getElementById('pitchSl').value*Math.PI/180, cR = document.getElementById('rollSl').value*Math.PI/180, cY = document.getElementById('yawSl').value*Math.PI/180, alpha = document.getElementById('alphaSl').value/100;
+  const cols = 2*N+1; let faces = [];
+  for(let i=0; i<N; i++){
+    for(let j=0; j<N*2; j++){
+      const p1=surface[i*cols+j], p2=surface[i*cols+j+1], p3=surface[(i+1)*cols+j+1], p4=surface[(i+1)*cols+j];
+      faces.push({pts:[p1,p2,p3,p4], z: project({x:(p1.x+p3.x)/2, y:(p1.y+p3.y)/2, z:(p1.z+p3.z)/2},W,H).depth});
+    }
+  }
+  faces.sort((a,b) => a.z - b.z);
+  faces.forEach(f => {
+    x3.beginPath(); f.pts.forEach((p,idx) => { const {sx,sy} = project(p,W,H); idx===0?x3.moveTo(sx,sy):x3.lineTo(sx,sy); });
+    x3.closePath(); const shade = Math.floor(120 + f.z * 50); x3.fillStyle = `rgba(${shade-40},${shade},${shade+40},${alpha})`;
+    x3.fill(); x3.strokeStyle = `rgba(255,255,255,${alpha*0.4})`; x3.lineWidth = 0.5; x3.stroke();
+  });
+  
+  const sz = findMaxCubeScale(bestCX, bestCY, bestCZ, cP, cR, cY); 
+  const v = getCubeVerts(bestCX, bestCY, bestCZ, sz, cP, cR, cY);
+  const edges = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+  x3.strokeStyle = '#4a9'; x3.lineWidth = 2.5;
+  for(let e of edges){
+    let p1 = project(v[e[0]],W,H), p2 = project(v[e[1]],W,H);
+    x3.beginPath(); x3.moveTo(p1.sx, p1.sy); x3.lineTo(p2.sx, p2.sy); x3.stroke();
+  }
+  document.getElementById('mSz').textContent = sz.toFixed(3);
+}
+
+c3d.addEventListener('mousedown', e => { isDragging = true; lastMouseX = e.clientX; lastMouseY = e.clientY; });
+window.addEventListener('mouseup', () => isDragging = false);
+window.addEventListener('mousemove', e => {
+  if (!isDragging) return; viewYaw += (e.clientX - lastMouseX)*0.01; viewPitch += (e.clientY - lastMouseY)*0.01;
+  lastMouseX = e.clientX; lastMouseY = e.clientY; draw3D();
+});
+
+function onUIChange() {
+  ['pitch','roll','yaw','alpha'].forEach(k => {
+    const el = document.getElementById(k+'Sl'), valEl = document.getElementById(k+'V');
+    if(el && valEl) valEl.textContent = el.value + (k==='alpha'?'%':'°');
+  });
+  draw3D();
+}
+
+function scanStep() {
+  if (!scanning) return;
+  scanCounter++;
+  if (scanCounter > SCAN_LIMIT) { stopScan(); document.getElementById('status').textContent = 'Equilibrium Reached.'; return; }
+  document.getElementById('status').textContent = `Directed Jitter... ${Math.floor(scanCounter/SCAN_LIMIT*100)}%`;
+  
+  let temp = 1.0 - (scanCounter / SCAN_LIMIT);
+  for(let i=0; i<6; i++){ 
+    let tP = bestP + (Math.random()-0.5) * 1.5 * temp;
+    let tR = bestR + (Math.random()-0.5) * 1.5 * temp;
+    let tY = bestY + (Math.random()-0.5) * 3.0 * temp;
+    let tX = bestCX + (Math.random()-0.5) * 0.3 * temp;
+    let tYc = bestCY + (Math.random()-0.5) * 0.3 * temp;
+    let tZ = bestCZ + (Math.random()-0.5) * 0.3 * temp;
+
+    let sz = findMaxCubeScale(tX, tYc, tZ, tP, tR, tY);
+    if (sz > maxFoundSz) {
+      maxFoundSz = sz; bestCX = tX; bestCY = tYc; bestCZ = tZ;
+      bestP = tP; bestR = tR; bestY = tY;
+      document.getElementById('pitchSl').value = Math.round(tP*180/Math.PI); 
+      document.getElementById('rollSl').value = Math.round(tR*180/Math.PI); 
+      document.getElementById('yawSl').value = Math.round(tY*180/Math.PI);
+      document.getElementById('mMax').textContent = sz.toFixed(3); 
+    }
+  }
+  onUIChange(); scanId = requestAnimationFrame(scanStep);
+}
+
+function startScan() {
+  cancelAnimationFrame(scanId); scanning = true; maxFoundSz = 0; scanCounter = 0;
+  bestCX=0; bestCY=0; bestCZ=0; bestP=0.78; bestR=0; bestY=0;
+  document.getElementById('scanBtn').textContent = 'Stop'; scanStep();
+}
+function stopScan() { scanning = false; cancelAnimationFrame(scanId); document.getElementById('scanBtn').textContent = 'Auto-find Cube'; }
+function newSurface() { stopScan(); genSurface(); maxFoundSz = 0; bestCX=0; bestCY=0; bestCZ=0; bestP=0.78; bestR=0; bestY=0; document.getElementById('mMax').textContent = '—'; document.getElementById('pitchSl').value = 45; document.getElementById('rollSl').value = 0; document.getElementById('yawSl').value = 0; onUIChange(); document.getElementById('status').textContent = 'New Random Geometry Sealed.'; }
+function toggleScan() { scanning ? stopScan() : startScan(); }
+
+genSurface(); draw3D();
+</script>
+</body>
+</html>
