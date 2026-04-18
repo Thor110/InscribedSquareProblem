@@ -1,4 +1,8 @@
 # Inscribed Square Problem
+This project utilizes a skeletal constraint-based search, a "rattling frame" to demonstrate that such a state of mechanical equilibrium exists for all continuous, non-self-intersecting 2D or 3D volumes. ( containing a regular triangle, square, regular tetrahedron and cube )
+
+NOTE : The current visualisation uses a different more brute force method.
+
 My proposed proof for the Inscribed Square Problem
 
 Let C be any Jordan curve.
@@ -28,3 +32,6 @@ There exist planes whose intersection with any closed 3D Jordan surface is a Jor
 The resolution of the 2D Inscribed Square Problem provides a Deterministic Foundation for the 3D Inscribed Cube Problem.
 
 By reducing the 3D volume to a continuous series of 2D planes, we can identify the cube as a mechanical necessity of the Jordan Surface.
+
+## Inscribed Tetrahedron Problem
+Just as a regular inscribed triangle is guaranteed to exist in any Jordan curve, I propose that a regular inscribed Tetrahedron is guaranteed to exist within any closed Jordan surface.
