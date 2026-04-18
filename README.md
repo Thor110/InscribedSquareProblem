@@ -23,9 +23,7 @@ You can view the **Inscribed Square Viewfinder** in action here:
 Consider a square expanding from any interior point within a Jordan curve. At a scale near zero, the square is entirely contained. At a scale larger than the curve's maximum diameter, the square entirely encloses the curve. Because the curve is a continuous, non-self-intersecting boundary, the transition from 'Inside' to 'Outside' necessitates an intermediate state where all four vertices intersect the boundary. Because the Jordan curve forbids self-intersection, this intersection cannot occur at a side length of zero, thereby guaranteeing a non-degenerate inscribed square.
 
 ## Inscribed Cube Problem
-If you take any 3D Jordan surface and pass a plane through it, the intersection is a 2D Jordan curve.
-
-Thus through IVT an inscribed cube must also exist in any 3D Jordan surface.
+There exist planes whose intersection with any closed 3D Jordan surface is a Jordan curve, and those curves each contain an inscribed square, and the continuous variation of those squares across parallel planes guarantees a cube by IVT.
 
 The resolution of the 2D Inscribed Square Problem provides a Deterministic Foundation for the 3D Inscribed Cube Problem.
 
