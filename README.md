@@ -83,3 +83,41 @@ Without this "Half-Weight Block," an odd number is forced to attempt the crossin
 No matter how many millions of these smaller pieces you pile up, they are mechanically incapable of bridging the gap to $N$.
 
 The structure is doomed to be "too light" to reach equilibrium.
+
+## The Prime Sieve ($P = NP$)
+
+The Irreducible Outliers
+
+While mathematics traditionally hunts for a "Steamroller" formula to predict the appearance of Prime numbers, the Mechanical Necessity of the number system defines a Prime ($P$) simply by what it is not: a product ($NP$).
+
+The Formula of Exclusion:
+
+$N \neq (N \times N) = NP$
+
+In this deterministic view, a Prime is the "Not-Prime" - the residue that remains when the sieve of multiplication filters out all composite products.
+
+The Deterministic Sieve:
+
+Products as Bridges:
+
+Every composite number is a bridge built from smaller prime support beams ($N \times N$).
+
+Primes as Gaps:
+
+Primes are the "Skeletal Gaps" in the bridge.
+
+They are the values that cannot be halved, tripled, or reduced into any integer structure.
+
+The Sieve of Necessity:
+
+You do not "calculate" a prime; you reveal it by calculating everything that it is not. It is a state of numerical rest that survives the process of elimination.
+
+The $P = NP$ Irony:
+
+In the "Attention Economy" of mathematics, $P = NP$ is treated as a complex complexity problem.
+
+In this repository, $P = NP$ is a trivial identity:
+
+Prime = Not-Product.
+
+The "Outlier" status of primes is a mechanical mandatory of the number system, the irreducible points of silence between the noise of products.
