@@ -24,6 +24,9 @@
   .mval.match{color:#4a9;}
   .status{margin-top:8px;font-size:11px;color:#3a3a4a;letter-spacing:0.12em;text-transform:uppercase;min-height:16px;}
   .status.found{color:#4a9;}
+  .nav{margin-top:20px;font-size:10px;}
+  .nav a{color:#444;text-decoration:none;letter-spacing:0.1em;text-transform:uppercase;}
+  .nav a:hover{color:#888;}
 </style>
 </head>
 <body>
@@ -51,6 +54,8 @@
 </div>
 <div class="meters" id="meterGrid"></div>
 <div class="status" id="status">Ready</div>
+
+<div class="nav"><a href="index.html">← Back to suite</a></div>
 
 <script>
 const cv=document.getElementById('canvas'),ctx=cv.getContext('2d');

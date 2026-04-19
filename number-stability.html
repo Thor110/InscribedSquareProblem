@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Number Stability — Odd Perfect Number Problem</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#0a0a0f;color:#e0ddd8;font-family:'Courier New',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;}
+  h1{font-size:13px;letter-spacing:0.2em;text-transform:uppercase;color:#666;margin-bottom:6px;}
+  .sub{font-size:11px;color:#444;margin-bottom:16px;letter-spacing:0.1em;text-align:center;max-width:600px;line-height:1.6;}
+  #canvas{display:block;background:#0d0d14;border:1px solid #1e1e2a;border-radius:4px;width:100%;max-width:700px;}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;justify-content:center;max-width:700px;width:100%;}
+  button{background:transparent;border:1px solid #2a2a3a;color:#888;padding:6px 14px;font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.1em;cursor:pointer;text-transform:uppercase;transition:all 0.15s;}
+  button:hover{border-color:#555;color:#ccc;background:#111;}
+  button.active{border-color:#4a9;color:#4a9;}
+  select{background:#0d0d14;border:1px solid #2a2a3a;color:#888;padding:6px 10px;font-family:'Courier New',monospace;font-size:11px;cursor:pointer;text-transform:uppercase;}
+  .slrow{display:flex;align-items:center;gap:10px;font-size:11px;color:#555;width:100%;max-width:700px;}
+  .slrow input[type=range]{flex:1;accent-color:#4a9;}
+  .slrow span{min-width:80px;text-align:right;font-variant-numeric:tabular-nums;}
+  .meters{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:8px;max-width:700px;width:100%;}
+  .meter{background:#0d0d14;border:1px solid #1a1a24;padding:6px 9px;}
+  .mlabel{font-size:9px;color:#3a3a4a;letter-spacing:0.1em;text-transform:uppercase;}
+  .mval{font-size:14px;font-weight:bold;color:#555;margin-top:1px;transition:color 0.2s;font-variant-numeric:tabular-nums;}
+  .mval.deficit{color:#a84;}
+  .mval.perfect{color:#4a9;}
+  .mval.excess{color:#e55;}
+  .divisors{margin-top:8px;font-size:10px;color:#444;max-width:700px;width:100%;line-height:1.7;letter-spacing:0.06em;}
+  .status{margin-top:8px;font-size:11px;color:#3a3a4a;letter-spacing:0.12em;text-transform:uppercase;min-height:16px;text-align:center;}
+  .status.deficit{color:#ca6;}
+  .status.perfect{color:#4a9;}
+  .status.excess{color:#e55;}
+  .nav{margin-top:20px;font-size:10px;}
+  .nav a{color:#444;text-decoration:none;letter-spacing:0.1em;text-transform:uppercase;}
+  .nav a:hover{color:#888;}
+</style>
+</head>
+<body>
+<h1>Number Stability</h1>
+<div class="sub">
+  Edward James Gordon — Odd Perfect Number Problem<br>
+  An odd number lacks the N/2 anchor. Its proper divisors, starting at most N/3, are mechanically incapable of summing to N.
+  Drag the slider to explore any odd number and watch the divisor segments fail to bridge the gap.
+</div>
+
+<canvas id="canvas" height="100"></canvas>
+
+<div class="slrow" style="margin-top:10px;">
+  <span style="min-width:80px;text-align:left;">Odd number</span>
+  <input type="range" id="nSl" min="3" max="99999" value="77" step="2">
+  <span id="nV">77</span>
+</div>
+
+<div class="meters">
+  <div class="meter"><div class="mlabel">N</div><div class="mval" id="mN">77</div></div>
+  <div class="meter"><div class="mlabel">Sum of divisors</div><div class="mval" id="mSum">19</div></div>
+  <div class="meter"><div class="mlabel">Gap to N</div><div class="mval deficit" id="mGap">58</div></div>
+  <div class="meter"><div class="mlabel">Largest divisor</div><div class="mval" id="mLargest">11</div></div>
+  <div class="meter"><div class="mlabel">Largest / N</div><div class="mval" id="mRatio">14.3%</div></div>
+  <div class="meter"><div class="mlabel">Divisor count</div><div class="mval" id="mCount">3</div></div>
+</div>
+
+<div class="divisors" id="divisorList">Divisors: 1, 7, 11</div>
+<div class="status deficit" id="status">Sum falls short by 58 — the divisors cannot bridge the gap to N</div>
+
+<div class="controls">
+  <button onclick="setN(3)">N = 3</button>
+  <button onclick="setN(9)">N = 9</button>
+  <button onclick="setN(15)">N = 15</button>
+  <button onclick="setN(77)">N = 77</button>
+  <button onclick="setN(945)">N = 945</button>
+  <button onclick="setN(3003)">N = 3003</button>
+  <button onclick="scanForPerfect()" id="scanBtn">Scan for odd perfect</button>
+</div>
+
+<div class="nav"><a href="index.html">← Back to suite</a></div>
+
+<script>
+const cv=document.getElementById('canvas'),ctx=cv.getContext('2d');
+
+function getDivisors(n){
+  const d=[1];
+  for(let i=2;i*i<=n;i++){
+    if(n%i===0){d.push(i);if(i!==n/i)d.push(n/i);}
+  }
+  return d.sort((a,b)=>a-b);
+}
+
+function update(){
+  let v=+document.getElementById('nSl').value;
+  if(v%2===0)v++;
+  document.getElementById('nSl').value=v;
+  document.getElementById('nV').textContent=v.toLocaleString();
+  render(v);
+}
+
+function render(n){
+  const divs=getDivisors(n);
+  const total=divs.reduce((s,x)=>s+x,0);
+  const gap=n-total;
+  const largest=divs[divs.length-1];
+  const ratio=(largest/n*100).toFixed(1);
+
+  document.getElementById('mN').textContent=n.toLocaleString();
+  document.getElementById('mSum').textContent=total.toLocaleString();
+  document.getElementById('mLargest').textContent=largest.toLocaleString();
+  document.getElementById('mRatio').textContent=ratio+'%';
+  document.getElementById('mCount').textContent=divs.length;
+
+  const gEl=document.getElementById('mGap');
+  gEl.textContent=Math.abs(gap).toLocaleString();
+  gEl.className='mval '+(gap===0?'perfect':gap>0?'deficit':'excess');
+
+  document.getElementById('divisorList').textContent='Divisors: '+divs.join(', ');
+
+  const st=document.getElementById('status');
+  if(gap===0){
+    st.textContent='Perfect — sum equals N exactly (this would be extraordinary)';
+    st.className='status perfect';
+  } else if(gap>0){
+    st.textContent='Sum falls short by '+gap.toLocaleString()+' — the divisors cannot bridge the gap to N';
+    st.className='status deficit';
+  } else {
+    st.textContent='Sum exceeds N by '+Math.abs(gap).toLocaleString();
+    st.className='status excess';
+  }
+
+  draw(n,divs,total,gap);
+}
+
+function draw(n,divs,total,gap){
+  const dpr=window.devicePixelRatio||1;
+  const W=cv.clientWidth,H=cv.clientHeight;
+  cv.width=W*dpr;cv.height=H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+
+  const dark=matchMedia('(prefers-color-scheme:dark)').matches;
+  const pad=20,barY=42,barH=22;
+  const scale=(W-pad*2)/n;
+
+  // Track background
+  ctx.fillStyle=dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)';
+  ctx.beginPath();ctx.roundRect(pad,barY,W-pad*2,barH,4);ctx.fill();
+
+  // Divisor segments
+  const cols=['#534AB7','#1D9E75','#BA7517','#185FA5','#993C1D','#3B6D11','#854F0B','#A32D2D','#72243E','#085041'];
+  let x=pad;
+  divs.forEach((d,i)=>{
+    const w=Math.max(d*scale,1);
+    ctx.fillStyle=cols[i%cols.length];
+    ctx.beginPath();ctx.roundRect(x,barY,w-0.5,barH,2);ctx.fill();
+    if(w>22){
+      ctx.fillStyle='rgba(255,255,255,0.92)';
+      ctx.font='bold 9px Courier New';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(d.toLocaleString(),x+w/2,barY+barH/2);
+    }
+    x+=w;
+  });
+
+  // Gap
+  if(gap>0){
+    const gw=Math.max(gap*scale,2);
+    ctx.fillStyle=dark?'rgba(200,100,80,0.22)':'rgba(163,45,45,0.15)';
+    ctx.beginPath();ctx.roundRect(x,barY,gw,barH,2);ctx.fill();
+    ctx.strokeStyle=dark?'#a84':'#993C1D';ctx.lineWidth=1.5;ctx.setLineDash([3,3]);
+    ctx.beginPath();ctx.roundRect(x,barY,gw,barH,2);ctx.stroke();ctx.setLineDash([]);
+    if(gw>30){
+      ctx.fillStyle=dark?'#ca6':'#993C1D';
+      ctx.font='9px Courier New';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('gap '+gap.toLocaleString(),x+gw/2,barY+barH/2);
+    }
+  }
+
+  // N marker
+  const nX=W-pad;
+  ctx.strokeStyle=dark?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.25)';
+  ctx.lineWidth=1.5;ctx.setLineDash([]);
+  ctx.beginPath();ctx.moveTo(nX,barY-8);ctx.lineTo(nX,barY+barH+8);ctx.stroke();
+  ctx.fillStyle=dark?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.4)';
+  ctx.font='10px Courier New';ctx.textAlign='center';ctx.textBaseline='bottom';
+  ctx.fillText('N = '+n.toLocaleString(),nX,barY-9);
+
+  // Sum marker
+  const sumX=pad+total*scale;
+  if(sumX<nX-8){
+    ctx.strokeStyle=dark?'rgba(200,160,80,0.7)':'rgba(186,117,23,0.7)';
+    ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
+    ctx.beginPath();ctx.moveTo(sumX,barY-5);ctx.lineTo(sumX,barY+barH+5);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle=dark?'#EF9F27':'#BA7517';
+    ctx.font='10px Courier New';ctx.textAlign='center';ctx.textBaseline='bottom';
+    ctx.fillText('Σ = '+total.toLocaleString(),sumX,barY-9);
+  }
+
+  // N/2 ghost marker
+  const halfX=pad+(n/2)*scale;
+  ctx.strokeStyle=dark?'rgba(83,74,183,0.4)':'rgba(83,74,183,0.3)';
+  ctx.lineWidth=1;ctx.setLineDash([2,4]);
+  ctx.beginPath();ctx.moveTo(halfX,barY-3);ctx.lineTo(halfX,barY+barH+3);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle=dark?'rgba(83,74,183,0.6)':'rgba(83,74,183,0.5)';
+  ctx.font='9px Courier New';ctx.textAlign='center';ctx.textBaseline='top';
+  ctx.fillText('N/2',halfX,barY+barH+5);
+}
+
+function setN(n){
+  document.getElementById('nSl').value=n;
+  update();
+}
+
+let scanning=false,scanId=null,scanN=3;
+function scanForPerfect(){
+  if(scanning){
+    scanning=false;cancelAnimationFrame(scanId);
+    document.getElementById('scanBtn').textContent='Scan for odd perfect';
+    document.getElementById('scanBtn').classList.remove('active');
+    return;
+  }
+  scanning=true;scanN=3;
+  document.getElementById('scanBtn').textContent='Stop scan';
+  document.getElementById('scanBtn').classList.add('active');
+  scanStep();
+}
+
+function scanStep(){
+  if(!scanning)return;
+  const max=+document.getElementById('nSl').max;
+  if(scanN>max){
+    scanning=false;
+    document.getElementById('scanBtn').textContent='Scan for odd perfect';
+    document.getElementById('scanBtn').classList.remove('active');
+    document.getElementById('status').textContent='Scan complete — no odd perfect number found up to '+max.toLocaleString();
+    return;
+  }
+  document.getElementById('nSl').value=scanN;
+  render(scanN);
+  const divs=getDivisors(scanN);
+  const total=divs.reduce((s,x)=>s+x,0);
+  if(total===scanN){
+    document.getElementById('status').textContent='Odd perfect number found at N = '+scanN+' (extraordinary!)';
+    scanning=false;
+    document.getElementById('scanBtn').textContent='Scan for odd perfect';
+    document.getElementById('scanBtn').classList.remove('active');
+    return;
+  }
+  scanN+=2;
+  scanId=requestAnimationFrame(scanStep);
+}
+
+document.getElementById('nSl').addEventListener('input',update);
+new ResizeObserver(()=>render(+document.getElementById('nSl').value)).observe(cv);
+render(77);
+</script>
+</body>
+</html>

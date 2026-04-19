@@ -30,6 +30,9 @@
   .legend{display:flex;gap:14px;margin-top:8px;font-size:10px;color:#444;flex-wrap:wrap;justify-content:center;}
   .legend span{display:flex;align-items:center;gap:5px;}
   .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .nav{margin-top:20px;font-size:10px;}
+  .nav a{color:#444;text-decoration:none;letter-spacing:0.1em;text-transform:uppercase;}
+  .nav a:hover{color:#888;}
 </style>
 </head>
 <body>
@@ -67,6 +70,8 @@
   <span><span class="dot" style="background:#4a9"></span>All four locked</span>
 </div>
 <div class="status" id="status">Expand the square — it scales down when it meets the boundary</div>
+
+<div class="nav"><a href="index.html">← Back to suite</a></div>
 
 <script>
 const cv=document.getElementById('canvas'),ctx=cv.getContext('2d');

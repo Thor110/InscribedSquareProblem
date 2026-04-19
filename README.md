@@ -104,6 +104,14 @@ Mechanical Inevitability: As $N$ gets larger, these divisors become more "Sparse
 
 In a perfect even number, the $N/2$ anchor does half the work. In an odd number, you're starting with a 66% deficit. Because divisors must be integers derived from $N$, you simply don't have enough 'Large Bricks' to fill that hole. The more you divide, the smaller the pieces get, and the farther away the whole becomes.
 
+## Another explanation
+
+For any odd number N, the sum of its proper divisors is structurally bounded below N because without N/2 in the divisor set, the largest available divisor is at most N/p where p is the smallest odd prime factor of N, which is at minimum 3. The remaining divisors are all smaller fractions of N derived from combinations of its prime factors, and their collective sum cannot bridge the gap to N.
+
+## Proof of Structural Instability for Odd Numbers
+
+This is another visualisation I have added to the interactive demonstrations.
+
 ## The Prime Sieve ($P = NP$)
 
 The Irreducible Outliers
@@ -141,3 +149,9 @@ In this repository, $P = NP$ is a trivial identity:
 Prime = Not-Product.
 
 The "Outlier" status of primes is a mechanical mandatory of the number system, the irreducible points of silence between the noise of products.
+
+## $P=NP & P!=NP$
+
+A : P = NP if you have all factors or variables that compose P
+&
+B : P = P if you don't have all factors or variables that compose P

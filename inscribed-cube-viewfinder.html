@@ -26,6 +26,9 @@
   .mlabel{font-size:9px;color:#3a3a4a;letter-spacing:0.1em;text-transform:uppercase;}
   .mval{font-size:13px;font-weight:bold;color:#555;margin-top:1px;}
   .status{margin-top:10px; font-size:10px; color:#4a9; letter-spacing:0.05em; text-transform:uppercase; height:15px;}
+  .nav{margin-top:20px;font-size:10px;}
+  .nav a{color:#444;text-decoration:none;letter-spacing:0.1em;text-transform:uppercase;}
+  .nav a:hover{color:#888;}
 </style>
 </head>
 <body>
@@ -62,6 +65,8 @@
   <div class="meter"><div class="mlabel">Max Found Scale</div><div class="mval" id="mMax">—</div></div>
 </div>
 <div class="status" id="status">Ready</div>
+
+<div class="nav"><a href="index.html">← Back to suite</a></div>
 
 <script>
 const c3d=document.getElementById('c3d'),x3=c3d.getContext('2d');
