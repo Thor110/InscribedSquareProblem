@@ -153,5 +153,7 @@ The "Outlier" status of primes is a mechanical mandatory of the number system, t
 ## Problem Problem ($P = NP$ & $P != NP$)
 
 A : P = NP if you have all factors or variables that compose P
+
 &
+
 B : P = P if you don't have all factors or variables that compose P
