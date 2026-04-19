@@ -84,6 +84,26 @@ No matter how many millions of these smaller pieces you pile up, they are mechan
 
 The structure is doomed to be "too light" to reach equilibrium.
 
+## Further Explanation
+
+If a number can be divided by something, the result is ultimately smaller if all odd numbers are smaller, they simply can not sum up to the whole number they were divided from.
+
+1. The Even Model (Density)
+
+In an even perfect number like $6$, you start with a 50% Anchor ($3 = 6/2$). The remaining pieces ($2, 1$) only need to cover the remaining $50\%$. The "Binary Spine" ($N/2, N/4, N/8, \dots$) creates a dense map where the pieces are large enough to reach the total easily.
+
+2. The Odd Model (Hollowness)
+
+In an odd number, the "Support Beam" is missing.
+
+The Starting Gap: Your largest possible piece is only $33.3\%$ of the whole ($N/3$).
+
+The Numerical Fjord: To reach $100\%$ ($N$), you now have a $66.6\%$ gap to fill using only progressively smaller odd divisors ($N/5, N/7, N/9, \dots$).
+
+Mechanical Inevitability: As $N$ gets larger, these divisors become more "Sparse". My argument is that the "Numerical Gravity" of these smaller pieces isn't strong enough to pull the sum up to $N$. Without the $N/2$ pylon, the bridge falls into the fjord.
+
+In a perfect even number, the $N/2$ anchor does half the work. In an odd number, you're starting with a 66% deficit. Because divisors must be integers derived from $N$, you simply don't have enough 'Large Bricks' to fill that hole. The more you divide, the smaller the pieces get, and the farther away the whole becomes.
+
 ## The Prime Sieve ($P = NP$)
 
 The Irreducible Outliers
