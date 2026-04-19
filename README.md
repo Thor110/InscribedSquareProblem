@@ -36,10 +36,9 @@ The resolution of the 2D Inscribed Square Problem provides a Deterministic Found
 By reducing the 3D volume to a continuous series of 2D planes, we can identify the cube as a mechanical necessity of the Jordan Surface.
 
 ## Inscribed Tetrahedron Problem
-Just as a regular inscribed triangle is guaranteed to exist in any Jordan curve, I propose that a regular inscribed Tetrahedron is guaranteed to exist within any closed Jordan surface.
+Just as a regular inscribed triangle is guaranteed to exist in any Jordan curve, I propose that a regular inscribed Tetrahedron is guaranteed to exist within any closed Jordan surface through the same mechanism.
 
 ## Perfect Odd Numbers...
-
 Another proof by Mechanical Necessity
 
 While modern number theory attempts to find a "Monster" odd perfect number through computational brute force, the Mechanical Necessity of the number's construction forbids its existence.
@@ -73,7 +72,6 @@ Process Repeat $\rightarrow 1$
 $\sum X = N$
 
 ## The Bridge Analogy
-
 Attempting to construct an odd perfect number is like trying to build a bridge across a void where the laws of physics forbid the existence of the primary support beam.
 
 In an even perfect number, the $N/2$ divisor acts as the massive central pylon that spans half the distance instantly.
@@ -85,7 +83,6 @@ No matter how many millions of these smaller pieces you pile up, they are mechan
 The structure is doomed to be "too light" to reach equilibrium.
 
 ## Further Explanation
-
 If a number can be divided by something, the result is ultimately smaller if all odd numbers are smaller, they simply can not sum up to the whole number they were divided from.
 
 1. The Even Model (Density)
@@ -105,15 +102,12 @@ Mechanical Inevitability: As $N$ gets larger, these divisors become more "Sparse
 In a perfect even number, the $N/2$ anchor does half the work. In an odd number, you're starting with a 66% deficit. Because divisors must be integers derived from $N$, you simply don't have enough 'Large Bricks' to fill that hole. The more you divide, the smaller the pieces get, and the farther away the whole becomes.
 
 ## Another explanation
-
 For any odd number N, the sum of its proper divisors is structurally bounded below N because without N/2 in the divisor set, the largest available divisor is at most N/p where p is the smallest odd prime factor of N, which is at minimum 3. The remaining divisors are all smaller fractions of N derived from combinations of its prime factors, and their collective sum cannot bridge the gap to N.
 
 ## Proof of Structural Instability for Odd Numbers
-
 This is another visualisation I have added to the interactive demonstrations.
 
 ## The Prime Sieve ($P = NP$)
-
 The Irreducible Outliers
 
 While mathematics traditionally hunts for a "Steamroller" formula to predict the appearance of Prime numbers, the Mechanical Necessity of the number system defines a Prime ($P$) simply by what it is not: a product ($NP$).
@@ -151,7 +145,6 @@ Prime = Not-Product.
 The "Outlier" status of primes is a mechanical mandatory of the number system, the irreducible points of silence between the noise of products.
 
 ## Problem Problem ($P = NP$ & $P != NP$)
-
 A : P = NP if you have all factors or variables that compose P
 
 &
