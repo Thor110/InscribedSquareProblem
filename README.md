@@ -1,4 +1,4 @@
-# Problems
+# Inscribed Problems
 This project utilizes a skeletal constraint-based search, a "rattling frame" to demonstrate that such a state of mechanical equilibrium exists for all continuous, non-self-intersecting 2D or 3D volumes. ( containing a regular triangle, square, regular tetrahedron and cube )
 
 This repository also contains some other proposed proofs of mine.
