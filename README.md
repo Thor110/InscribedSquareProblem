@@ -35,8 +35,28 @@ The resolution of the 2D Inscribed Square Problem provides a Deterministic Found
 
 By reducing the 3D volume to a continuous series of 2D planes, we can identify the cube as a mechanical necessity of the Jordan Surface.
 
+Let C be any Jordan surface.
+
+Let A and B be the minimum and maximum possible chord lengths across C.
+
+Because A and B are non-zero and distinct, matching chord lengths are guaranteed to exist between them, covering 360 degrees of possible directions continuously.
+
+Let C, D, E, F, G, H, I and J be continuous rays with a common midpoint extending to form a cube.
+
+As all values between minimum and maximum exist, the midpoint and lengths must find equilibrium.
+
 ## Inscribed Tetrahedron Problem
 Just as a regular inscribed triangle is guaranteed to exist in any Jordan curve, I propose that a regular inscribed Tetrahedron is guaranteed to exist within any closed Jordan surface through the same mechanism.
+
+Let C be any Jordan surface.
+
+Let A and B be the minimum and maximum possible chord lengths across C.
+
+Because A and B are non-zero and distinct, matching chord lengths are guaranteed to exist between them, covering 360 degrees of possible directions continuously.
+
+Let C, D, E, and F be continuous rays with a common midpoint extending to form a regular tetrahedron.
+
+As all values between minimum and maximum exist, the midpoint and lengths must find equilibrium.
 
 ## Perfect Odd Numbers...
 Another proof by Mechanical Necessity
