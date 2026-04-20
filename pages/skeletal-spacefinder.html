@@ -338,11 +338,11 @@ resetJig();
 
   window.addEventListener('load', () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const shape = urlParams.get('shape'); // e.g., "triangle"
+    const shape = urlParams.get('shape'); // e.g., "tetrahedron"
     const select = document.getElementById('insType');
     
     if (shape && select) {
-      // Find the option where the value contains the search string
+      // Case-insensitive search through options
       const option = Array.from(select.options).find(opt => opt.value.toLowerCase() === shape.toLowerCase());
       if (option) {
         select.value = option.value;
