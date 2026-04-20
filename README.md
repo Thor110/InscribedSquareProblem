@@ -81,7 +81,7 @@ A formal explanation describing another method of reasoning as to why this is tr
 
 To guarantee an equilibrium state, the available Degrees of Freedom (DoF) must meet or exceed the number of equality constraints required to make the shape regular.
 
-- **2D Space** (3 DoF: $X, Y, \theta$)
+**2D Space** (3 DoF: $X, Y, \theta$)
 
 **Inscribed Square:** Uses 2 DoF to center the midpoint $I(x,y)$ (Bisection) and 1 DoF to rotate $\theta$ until the chords are equal.
 
@@ -91,7 +91,7 @@ To guarantee an equilibrium state, the available Degrees of Freedom (DoF) must m
 
 - **Total:** 3 Constraints.
 
-- **3D Space** (6 DoF: $X, Y, Z$ & Roll, Pitch, Yaw)
+**3D Space** (6 DoF: $X, Y, Z$ & Roll, Pitch, Yaw)
 
 **Inscribed Cube:** Uses 3 DoF to center the midpoint $I(x,y,z)$ (Bisection) and 3 DoF of rotation to equalize the 3 perpendicular axes (6 face-centers).
 
