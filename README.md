@@ -45,6 +45,8 @@ Let C, D, E, F, G, H, I and J be continuous rays with a common midpoint extendin
 
 As all values between minimum and maximum exist, the midpoint and lengths must find equilibrium.
 
+Thus the lengths between the intersection poitns will form a cube.
+
 ## Inscribed Tetrahedron Problem
 Just as a regular inscribed triangle is guaranteed to exist in any Jordan curve, I propose that a regular inscribed Tetrahedron is guaranteed to exist within any closed Jordan surface through the same mechanism.
 
@@ -56,7 +58,13 @@ Because A and B are non-zero and distinct, matching chord lengths are guaranteed
 
 Let C, D, E, and F be continuous rays with a common midpoint extending to form a regular tetrahedron.
 
+Let G, H, I, J, K and L be the lengths between the points on the rays intersecting with C that represent the tetrahedron.
+
+Note that because there are four rays there are two possible pairs of these values.
+
 As all values between minimum and maximum exist, the midpoint and lengths must find equilibrium.
+
+Thus the side lengths between the intersection points will form a tetrahedron.
 
 ## Perfect Odd Numbers...
 Another proof by Mechanical Necessity
