@@ -19,7 +19,7 @@ I have presented a demonstration using my method anyway which can be seen here.
 
 ![Inscribed Triangle Shapefinder Demo](images/triangle_demonstration.gif)
 
-[Run the Number Stability Viewer](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-shapefinder.html)
+[Run the Skeletal Shape Finder](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-shapefinder.html)
 
 ## Inscribed Square Problem
 My proposed proof for the Inscribed Square Problem
@@ -44,7 +44,7 @@ A square is therefore a mechanical necessity of a continuous, non-self-intersect
 
 ![Inscribed Square Shapefinder Demo](images/square_demonstration.gif)
 
-[Run the Number Stability Viewer](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-shapefinder.html)
+[Run the Skeletal Shape Finder](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-shapefinder.html)
 
 ## Inscribed Cube Problem
 The resolution of the 2D Inscribed Square Problem provides a Deterministic Foundation for the 3D Inscribed Cube Problem.
@@ -65,7 +65,7 @@ Therefore every Jordan surface contains an inscribed cube.
 
 ![Inscribed Cube Spacefinder Demo](images/cube_demonstration.gif)
 
-[Run the Number Stability Viewer](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-spacefinder.html)
+[Run the Skeletal Space Finder](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-spacefinder.html)
 
 ## Inscribed Tetrahedron Problem
 Similarly the 2D Inscribed Triangle Problem which is already solved provides a Deterministic Foundation for the 3D Inscribed Regular Tetrahedron Problem.
@@ -86,7 +86,7 @@ Therefore every Jordan surface contains an inscribed regular tetrahedron.
 
 ![Inscribed Tetrahedron Spacefinder Demo](images/tetrahedron_demonstration.gif)
 
-[Run the Number Stability Viewer](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-spacefinder.html)
+[Run the Skeletal Space Finder](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-spacefinder.html)
 
 ## Degrees Of Freedom
 
