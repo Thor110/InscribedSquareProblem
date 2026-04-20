@@ -69,6 +69,34 @@ The Result: When four points on a continuous surface are equidistant from a comm
 
 Therefore every Jordan surface contains an inscribed regular tetrahedron.
 
+## Degrees Of Freedom
+
+A formal explanation describing another method of reasoning as to why this is true.
+
+To guarantee an equilibrium state, the available Degrees of Freedom (DoF) must meet or exceed the number of equality constraints required to make the shape regular.
+
+- 2D Space (3 DoF: $X, Y, \theta$)
+
+Inscribed Square: Uses 2 DoF to center the midpoint $I(x,y)$ (Bisection) and 1 DoF to rotate $\theta$ until the chords are equal.
+
+	- Total: 3 Constraints.
+
+Inscribed Triangle: Uses 2 DoF for the midpoint and 1 DoF for rotation to equalize the 3 sides.
+
+	- Total: 3 Constraints.
+
+- 3D Space (6 DoF: $X, Y, Z$ & Roll, Pitch, Yaw)
+
+Inscribed Cube: Uses 3 DoF to center the midpoint $I(x,y,z)$ (Bisection) and 3 DoF of rotation to equalize the 3 perpendicular axes (6 face-centers).
+
+	- Total: 6 Constraints.
+
+Inscribed Tetrahedron: Uses 3 DoF for the midpoint and 3 DoF for rotation to equalize the 4 rays.
+
+	- Total: 6 Constraints (with only 4 points of contact, this is a "Loose" mechanical certainty).
+
+Conclusion: Since the available DoF ($3$ in 2D, $6$ in 3D) meets or exceeds the required points of contact, these shapes are a mechanically mandatory feature of any continuous volume.
+
 ## Perfect Odd Numbers...
 Another proof by Mechanical Necessity
 
