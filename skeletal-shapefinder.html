@@ -304,12 +304,8 @@ function scanLoop(){
 
 function mainLoop(){if(!scanning)draw();requestAnimationFrame(mainLoop);}
 
-let dragging=false;
-cv.addEventListener('mousedown',()=>dragging=true);
-window.addEventListener('mouseup',()=>dragging=false);
-cv.addEventListener('mousemove',e=>{if(!dragging)return;const r=cv.getBoundingClientRect();jigX=e.clientX-r.left;jigY=e.clientY-r.top;draw();});
-
-resize();newCurve();
+resize();
+newCurve();
 mainLoop();
 </script>
 </body>
