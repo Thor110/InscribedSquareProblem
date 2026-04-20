@@ -7,7 +7,7 @@ This repository also contains some other proposed proofs of mine.
 You can view the **Inscribed Square & Cube Viewfinder** in action here:
 [Run the Live Viewfinder](https://thor110.github.io/InscribedSquareProblem/)
 
-Note that the viewfinders are merely demonstration while the shape and space finders more accurately showcase the method.
+Note that the viewfinders are merely demonstration while the skeletal finders more accurately showcase the method.
 
 ![Inscribed Square Viewfinder Demo](images/viewfinder_demo.gif)
 
@@ -18,6 +18,8 @@ This problem is already solved by the authors of this paper : https://www.resear
 I have presented a demonstration using my method anyway which can be seen here.
 
 ![Inscribed Triangle Shapefinder Demo](images/triangle_demonstration.gif)
+
+[Run the Number Stability Viewer](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-shapefinder.html)
 
 ## Inscribed Square Problem
 My proposed proof for the Inscribed Square Problem
@@ -42,6 +44,8 @@ A square is therefore a mechanical necessity of a continuous, non-self-intersect
 
 ![Inscribed Square Shapefinder Demo](images/square_demonstration.gif)
 
+[Run the Number Stability Viewer](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-shapefinder.html)
+
 ## Inscribed Cube Problem
 The resolution of the 2D Inscribed Square Problem provides a Deterministic Foundation for the 3D Inscribed Cube Problem.
 
@@ -61,6 +65,8 @@ Therefore every Jordan surface contains an inscribed cube.
 
 ![Inscribed Cube Spacefinder Demo](images/cube_demonstration.gif)
 
+[Run the Number Stability Viewer](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-spacefinder.html)
+
 ## Inscribed Tetrahedron Problem
 Similarly the 2D Inscribed Triangle Problem which is already solved provides a Deterministic Foundation for the 3D Inscribed Regular Tetrahedron Problem.
 
@@ -79,6 +85,8 @@ Define a 'Skeletal Jig' consisting of four rays extending from a common midpoint
 Therefore every Jordan surface contains an inscribed regular tetrahedron.
 
 ![Inscribed Tetrahedron Spacefinder Demo](images/tetrahedron_demonstration.gif)
+
+[Run the Number Stability Viewer](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-spacefinder.html)
 
 ## Degrees Of Freedom
 
@@ -149,6 +157,8 @@ $X(f) = 1/2 N$
 Process Repeat $\rightarrow 1$
 
 $\sum X = N$
+
+[Run the Number Stability Viewer](https://thor110.github.io/InscribedSquareProblem/pages/number-stability.html)
 
 ## The Bridge Analogy
 Attempting to construct an odd perfect number is like trying to build a bridge across a void where the laws of physics forbid the existence of the primary support beam.
