@@ -15,6 +15,8 @@ Note that the viewfinders are merely demonstration while the shape and space fin
 
 This problem is already solved by the authors of this paper : https://www.researchgate.net/publication/349125923_Inscribed_triangles_of_Jordan_curves_in_mathbbRn
 
+I have presented a demonstration using my method anyway which can be seen here.
+
 ![Inscribed Triangle Shapefinder Demo](images/triangle_demonstration.gif)
 
 ## Inscribed Square Problem
