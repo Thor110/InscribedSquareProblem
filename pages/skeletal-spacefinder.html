@@ -333,7 +333,19 @@ c3d.addEventListener('mousedown', e => { isDragging = true; lastMX = e.clientX; 
 window.addEventListener('mouseup', () => isDragging = false);
 window.addEventListener('mousemove', e => { if(isDragging){ vY+=(e.clientX-lastMX)*0.01; vP+=(e.clientY-lastMY)*0.01; lastMX=e.clientX; lastMY=e.clientY; draw3D(); } });
 
-genSurface(); resetJig();
+genSurface();
+resetJig();
+
+  window.addEventListener('load', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const shape = urlParams.get('shape');
+    const select = document.getElementById('shapeSelect'); // Ensure your <select> has this ID
+    
+    if (shape && select) {
+      select.value = shape;
+      select.dispatchEvent(new Event('change')); // Triggers the logic to update the jig
+    }
+  });
 </script>
 </body>
 </html>

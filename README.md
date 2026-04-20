@@ -19,7 +19,7 @@ I have presented a demonstration using my method anyway which can be seen here.
 
 ![Inscribed Triangle Shapefinder Demo](images/triangle_demonstration.gif)
 
-[Run the Skeletal Shape Finder](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-shapefinder.html)
+[Run the Skeletal Shape Finder](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-shapefinder.html?shape=triangle)
 
 ## Inscribed Square Problem
 My proposed proof for the Inscribed Square Problem
@@ -86,7 +86,7 @@ Therefore every Jordan surface contains an inscribed regular tetrahedron.
 
 ![Inscribed Tetrahedron Spacefinder Demo](images/tetrahedron_demonstration.gif)
 
-[Run the Skeletal Space Finder](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-spacefinder.html)
+[Run the Skeletal Space Finder](https://thor110.github.io/InscribedSquareProblem/pages/skeletal-spacefinder.html?shape=tetrahedron)
 
 ## Degrees Of Freedom
 

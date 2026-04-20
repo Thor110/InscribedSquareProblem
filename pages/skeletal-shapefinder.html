@@ -307,6 +307,17 @@ function mainLoop(){if(!scanning)draw();requestAnimationFrame(mainLoop);}
 resize();
 newCurve();
 mainLoop();
+
+  window.addEventListener('load', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const shape = urlParams.get('shape');
+    const select = document.getElementById('shapeSelect'); // Ensure your <select> has this ID
+    
+    if (shape && select) {
+      select.value = shape;
+      select.dispatchEvent(new Event('change')); // Triggers the logic to update the jig
+    }
+  });
 </script>
 </body>
 </html>
