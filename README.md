@@ -9,9 +9,13 @@ You can view the **Inscribed Square & Cube Viewfinder** in action here:
 
 Note that the viewfinders are merely demonstration while the shape and space finders more accurately showcase the method.
 
+![Inscribed Square Viewfinder Demo](triangle_demonstration.gif)
+
 ## Inscribed Triangle Problem
 
 This problem is already solved by the authors of this paper : https://www.researchgate.net/publication/349125923_Inscribed_triangles_of_Jordan_curves_in_mathbbRn
+
+![Inscribed Triangle Shapefinder Demo](triangle_demonstration.gif)
 
 ## Inscribed Square Problem
 My proposed proof for the Inscribed Square Problem
@@ -34,7 +38,7 @@ Therefore every Jordan curve contains an inscribed square.
 
 A square is therefore a mechanical necessity of a continuous, non-self-intersecting loop.
 
-![Inscribed Square Viewfinder Demo](viewfinder_demo.gif)
+![Inscribed Square Shapefinder Demo](square_demonstration.gif)
 
 ## Inscribed Cube Problem
 The resolution of the 2D Inscribed Square Problem provides a Deterministic Foundation for the 3D Inscribed Cube Problem.
@@ -53,6 +57,8 @@ Define a 3D "Skeletal Jig" representing the four internal diagonals of a cube. T
 
 Therefore every Jordan surface contains an inscribed cube.
 
+![Inscribed Cube Spacefinder Demo](cube_demonstration.gif)
+
 ## Inscribed Tetrahedron Problem
 Similarly the 2D Inscribed Triangle Problem which is already solved provides a Deterministic Foundation for the 3D Inscribed Regular Tetrahedron Problem.
 
@@ -69,6 +75,8 @@ Define a 'Skeletal Jig' consisting of four rays extending from a common midpoint
 **The Result:** When four points on a continuous surface are equidistant from a common center $I$ and maintained at regular tetrahedral angles, those points ($E, F, G, H$) define an inscribed regular tetrahedron.
 
 Therefore every Jordan surface contains an inscribed regular tetrahedron.
+
+![Inscribed Tetrahedron Spacefinder Demo](tetrahedron_demonstration.gif)
 
 ## Degrees Of Freedom
 
