@@ -48,7 +48,7 @@ The First Equilibrium (Length): At any fixed point $I$, rotating the jig allows 
 
 The Second Equilibrium (Bisection): As $I$ is moved through the 3D interior of $C$, the offset of these equal-length chords (the distance from $I$ to the boundary) varies continuously. There exists a position for $I$ where the midpoint of the jig aligns with four equal-length chords.
 
-The Result: When the three chords are perpendicular, equal in length, and bisected at $I$, the eight points of intersection define the centers of the faces (or vertices, depending on orientation) of an inscribed cube.
+The Result: When the four chords are perpendicular, equal in length, and bisected at $I$, the eight points of intersection define the centers of the faces (or vertices, depending on orientation) of an inscribed cube.
 
 Therefore every Jordan surface contains an inscribed cube.
 
