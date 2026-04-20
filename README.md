@@ -9,6 +9,10 @@ You can view the **Inscribed Square & Cube Viewfinder** in action here:
 
 Note that the viewfinders are merely demonstration while the shape and space finders more accurately showcase the method.
 
+## Inscribed Triangle Problem
+
+This problem is already solved by the authors of this paper : https://www.researchgate.net/publication/349125923_Inscribed_triangles_of_Jordan_curves_in_mathbbRn
+
 ## Inscribed Square Problem
 My proposed proof for the Inscribed Square Problem
 
