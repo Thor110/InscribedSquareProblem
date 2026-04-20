@@ -338,12 +338,16 @@ resetJig();
 
   window.addEventListener('load', () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const shape = urlParams.get('shape');
-    const select = document.getElementById('shapeSelect'); // Ensure your <select> has this ID
+    const shape = urlParams.get('shape'); // e.g., "triangle"
+    const select = document.getElementById('insType');
     
     if (shape && select) {
-      select.value = shape;
-      select.dispatchEvent(new Event('change')); // Triggers the logic to update the jig
+      // Find the option where the value contains the search string
+      const option = Array.from(select.options).find(opt => opt.value.toLowerCase() === shape.toLowerCase());
+      if (option) {
+        select.value = option.value;
+        select.dispatchEvent(new Event('change')); 
+      }
     }
   });
 </script>
