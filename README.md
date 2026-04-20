@@ -9,15 +9,6 @@ You can view the **Inscribed Square & Cube Viewfinder** in action here:
 
 Note that the viewfinders are merely demonstration while the shape and space finders more accurately showcase the method.
 
-## Expansion Paradox
-Consider a regular polytope (triangle, square, tetrahedron, or cube) expanding from any interior point $I$ within a closed Jordan boundary.
-
-At a scale near zero, the shape is entirely contained. At a scale larger than the volume's maximum diameter, the shape entirely encloses the boundary.
-
-Because the boundary is continuous and non-self-intersecting, the transition from 'Interior' to 'Exterior' requires an intermediate state of mechanical equilibrium where all vertices (or rays) intersect the boundary simultaneously.
-
-Because the Jordan boundary forbids self-intersection, this intersection cannot occur at a scale of zero, guaranteeing a non-degenerate inscribed shape.
-
 ## Inscribed Square Problem
 My proposed proof for the Inscribed Square Problem
 
@@ -46,15 +37,15 @@ The resolution of the 2D Inscribed Square Problem provides a Deterministic Found
 
 **The 3D Skeletal Jig:** Let $C$ be any closed 3D Jordan surface.
 
-Define a 3D 'Skeletal Jig' consisting of four perpendicular lines (axes) intersecting at a common midpoint $I$.
+Define a 3D "Skeletal Jig" representing the four internal diagonals of a cube. These four lines intersect at a common midpoint I and provide eight points of intersection with the surface C.
 
-**The Points of Intersection:** As $I$ moves within $C$ and the jig rotates, the four axes intersect $C$ at eight points, forming four perpendicular chords.
+**The Points of Intersection:** As $I$ moves within $C$ and the jig rotates, the four diagonals intersect $C$ at eight points, forming four diagonal chords.
 
-**The First Equilibrium (Length):** At any fixed point $I$, rotating the jig allows the axes to swap positions. Because the lengths of the chords vary continuously as they rotate, the Intermediate Value Theorem (IVT) guarantees an orientation where all four perpendicular chords are equal in length.
+**The First Equilibrium (Length):** At any fixed point $I$, rotating the jig allows the diagonals to swap positions. Because the lengths of the chords vary continuously as they rotate, the Intermediate Value Theorem (IVT) guarantees an orientation where all four diagonal chords are equal in length.
 
-**The Second Equilibrium (Bisection):** As $I$ is moved through the 3D interior of $C$, the offset of these equal-length chords (the distance from $I$ to the boundary) varies continuously. There exists a position for $I$ where the midpoint of the jig aligns with four equal-length chords.
+**The Second Equilibrium (Bisection):** As $I$ is moved through the 3D interior of $C$, the offset of these equal-length chords (the distance from $I$ to the boundary) varies continuously. There exists a position for $I$ where the midpoint of the jig aligns with the midpoints of the four equal-length chords.
 
-**The Result:** When the four chords are perpendicular, equal in length, and bisected at $I$, the eight points of intersection define the centers of the faces (or vertices, depending on orientation) of an inscribed cube.
+**The Result:** When the four chords are equal in length, and bisected at $I$, the eight points of intersection define the vertices of an inscribed cube.
 
 Therefore every Jordan surface contains an inscribed cube.
 
@@ -67,9 +58,9 @@ Define a 'Skeletal Jig' consisting of four rays extending from a common midpoint
 
 **The Points of Intersection:** As $I$ moves within $C$ and the jig rotates, the four rays intersect $C$ at four points ($E, F, G, H$).
 
-**The First Equilibrium (Length):** Because the surface $C$ is continuous, the lengths of the four rays from $I$ to the boundary vary continuously. By rotating the jig, the rays swap orientations. The Intermediate Value Theorem (IVT) guarantees that there exists an orientation and a position for $I$ where all four rays are equal in length.
+**The First Equilibrium (Length):** Because the surface $C$ is continuous, the distances from $I$ to the four intersection points ($E, F, G, H$) vary continuously. By rotating the jig, the rays swap orientations. The Intermediate Value Theorem (IVT) guarantees that there exists an orientation and a position for $I$ where the distances from the midpoint to all four boundary points are equal.
 
-**The Second Equilibrium:** As the four rays intersect $C$ at eight total points, there is twice the leverage for guaranteeing the result.
+**The Second Equilibrium:** Since the "Skeletal Jig" is composed of four axes passing through $I$, there are actually eight potential intersection points with $C$. This provides "twice the leverage," ensuring that even in highly irregular surfaces, the jig has multiple rotational paths to find a state where the primary four rays reach a length equilibrium.
 
 **The Result:** When four points on a continuous surface are equidistant from a common center $I$ and maintained at regular tetrahedral angles, those points ($E, F, G, H$) define an inscribed regular tetrahedron.
 
@@ -102,6 +93,15 @@ To guarantee an equilibrium state, the available Degrees of Freedom (DoF) must m
 - **Total:** 6 Constraints (with only 4 points of contact, this is a "Loose" mechanical certainty).
 
 **Conclusion:** Since the available DoF ($3$ in 2D, $6$ in 3D) meets or exceeds the required points of contact, these shapes are a mechanically mandatory feature of any continuous volume.
+
+## Expansion Paradox
+Consider a regular polytope (triangle, square, tetrahedron, or cube) expanding from any interior point $I$ within a closed Jordan boundary.
+
+At a scale near zero, the shape is entirely contained. At a scale larger than the volume's maximum diameter, the shape entirely encloses the boundary.
+
+Because the boundary is continuous and non-self-intersecting, the transition from 'Interior' to 'Exterior' requires an intermediate state of mechanical equilibrium where all vertices (or rays) intersect the boundary simultaneously.
+
+Because the Jordan boundary forbids self-intersection, this intersection cannot occur at a scale of zero, guaranteeing a non-degenerate inscribed shape.
 
 ## Perfect Odd Numbers...
 Another proof by Mechanical Necessity
