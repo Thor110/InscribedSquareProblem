@@ -310,16 +310,13 @@ mainLoop();
 
   window.addEventListener('load', () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const shape = urlParams.get('shape'); // e.g., "triangle"
-    const select = document.getElementById('insType');
+    const shape = urlParams.get('shape'); // Looks for ?shape=triangle
+    const select = document.getElementById('insType'); // Matches your <select id="insType">
     
     if (shape && select) {
-      // Find the option where the value contains the search string
-      const option = Array.from(select.options).find(opt => opt.value.toLowerCase() === shape.toLowerCase());
-      if (option) {
-        select.value = option.value;
-        select.dispatchEvent(new Event('change')); 
-      }
+      select.value = shape;
+      // Trigger resetJig() which is defined in your onchange attribute
+      select.dispatchEvent(new Event('change')); 
     }
   });
 </script>

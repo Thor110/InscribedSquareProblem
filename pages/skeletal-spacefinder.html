@@ -43,7 +43,7 @@
   <div class="btn-group">
     <select id="insType" onchange="resetJig()">
       <option value="cube">Inscribed Cube</option>
-      <option value="tetra">Inscribed Tetrahedron</option>
+      <option value="tetrahedron">Inscribed Tetrahedron</option>
     </select>
     <select id="surfType" onchange="newCurve()">
       <option value="blob">Random blob</option>
@@ -338,16 +338,13 @@ resetJig();
 
   window.addEventListener('load', () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const shape = urlParams.get('shape'); // e.g., "tetrahedron"
-    const select = document.getElementById('insType');
+    const shape = urlParams.get('shape'); // Looks for ?shape=tetrahedron
+    const select = document.getElementById('insType'); // Matches your <select id="insType">
     
     if (shape && select) {
-      // Case-insensitive search through options
-      const option = Array.from(select.options).find(opt => opt.value.toLowerCase() === shape.toLowerCase());
-      if (option) {
-        select.value = option.value;
-        select.dispatchEvent(new Event('change')); 
-      }
+      select.value = shape;
+      // Trigger resetJig() which is defined in your onchange attribute
+      select.dispatchEvent(new Event('change')); 
     }
   });
 </script>
