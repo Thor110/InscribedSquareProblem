@@ -134,7 +134,7 @@ function updateMeters(type, pts, c, forceGreen){
   const dAvg = diags.reduce((a,b)=>a+b,0)/diags.length, dErr = Math.max(...diags.map(d=>Math.abs(d-dAvg)));
   const eAvg = edges.reduce((a,b)=>a+b,0)/edges.length, eErr = Math.max(...edges.map(e=>Math.abs(e-eAvg)));
   
-  equilibriumFound = forceGreen || (dErr < 0.007 && eErr < 0.015);
+  equilibriumFound = dErr < 0.007 && eErr < 0.007;
 
   diags.forEach((d,i)=>{
     const m=document.createElement('div'); m.className='meter';
@@ -245,30 +245,86 @@ function draw3D(forceGreen = false){
   return err;
 }
 
+// Grid scan state — deliberately NOT named gridR to avoid conflict with surface data
+let gScanActive=false, gScanP=0, gScanRot=0, gScanY=0;
+const G_STEP=12; // degrees per grid step
+
+function scoreCandidate(res, type){
+  const edgeList = type==='cube' ? cubeEdges : tetraEdges;
+  const d = type==='cube'
+    ? [dist(res.pts[0],res.pts[1]), dist(res.pts[2],res.pts[3]), dist(res.pts[4],res.pts[5]), dist(res.pts[6],res.pts[7])]
+    : res.pts.map(pt=>dist(pt,{x:res.tx,y:res.ty,z:res.tz}));
+  const dAvg=d.reduce((a,b)=>a+b,0)/d.length, dErr=Math.max(...d.map(v=>Math.abs(v-dAvg)));
+  const e=edgeList.map(edge=>dist(res.pts[edge[0]],res.pts[edge[1]]));
+  const eAvg=e.reduce((a,b)=>a+b,0)/e.length, eErr=Math.max(...e.map(v=>Math.abs(v-eAvg)));
+  return dErr+eErr;
+}
+
+function applyAngles(tP,tR,tY){
+  jP=tP; jR=tR; jY=tY;
+  document.getElementById('pSl').value=Math.round(((tP*180/Math.PI)%360+360)%360);
+  document.getElementById('rSl').value=Math.round(((tR*180/Math.PI)%360+360)%360);
+  document.getElementById('ySl').value=Math.round(((tY*180/Math.PI)%360+360)%360);
+}
+
 function scanStep(){
-  if(!scanning) return;
-  scanCounter++;
-  if(bestErr < 0.005 || scanCounter > 950){ stopScan(); draw3D(true); return; }
-  let range = Math.PI * Math.pow(0.985, scanCounter/2.2);
-  const iters = bestErr < 0.05 ? 42 : 22;
-  for(let i=0; i<iters; i++){
-    let tP = jP + (Math.random()-0.5)*range, tR = jR + (Math.random()-0.5)*range, tY = jY + (Math.random()-0.5)*range;
-    const res = calculateState(tP, tR, tY, jigX, jigY, jigZ, 12);
-    const d = document.getElementById('insType').value==='cube' ? [dist(res.pts[0],res.pts[1]), dist(res.pts[2],res.pts[3]), dist(res.pts[4],res.pts[5]), dist(res.pts[6],res.pts[7])] : res.pts.map(pt => dist(pt, {x:res.tx, y:res.ty, z:res.tz}));
-    const dAvg = d.reduce((a,b)=>a+b,0)/d.length, dErr = Math.max(...d.map(val=>Math.abs(val-dAvg)));
-    if(dErr < bestErr){
-      bestErr = dErr;
-      document.getElementById('pSl').value = Math.round(((tP*180/Math.PI)%360+360)%360);
-      document.getElementById('rSl').value = Math.round(((tR*180/Math.PI)%360+360)%360);
-      document.getElementById('ySl').value = Math.round(((tY*180/Math.PI)%360+360)%360);
+  if(!scanning)return;
+  const type=document.getElementById('insType').value;
+  const st=document.getElementById('status');
+
+  if(gScanActive){
+    // Phase 2: systematic grid sweep 360x360x360 at G_STEP intervals
+    const total=Math.pow(360/G_STEP,3);
+    const done=gScanP*(360/G_STEP)*(360/G_STEP)+gScanRot*(360/G_STEP)+gScanY;
+    st.textContent='Grid scan '+Math.round(done/total*100)+'% — err:'+bestErr.toFixed(3);
+    st.className='status active';
+
+    for(let b=0;b<12;b++){
+      const tP=gScanP*G_STEP*Math.PI/180, tR=gScanRot*G_STEP*Math.PI/180, tY=gScanY*G_STEP*Math.PI/180;
+      const res=calculateState(tP,tR,tY,0,0,0,16);
+      const sc=scoreCandidate(res,type);
+      if(sc<bestErr){bestErr=sc; applyAngles(tP,tR,tY);}
+      gScanY++;
+      if(gScanY>=360/G_STEP){gScanY=0;gScanRot++;}
+      if(gScanRot>=360/G_STEP){gScanRot=0;gScanP++;}
+      if(gScanP>=360/G_STEP){gScanActive=false;scanCounter=0;break;}
     }
+    if(bestErr<0.005){stopScan();draw3D(false);return;}
+    onUIChange(); scanId=requestAnimationFrame(scanStep); return;
   }
-  onUIChange(); scanId = requestAnimationFrame(scanStep);
+
+  // Phase 1: jitter annealing
+  scanCounter++;
+  st.textContent='Rattling '+Math.round(scanCounter/950*100)+'% — err:'+bestErr.toFixed(3);
+  st.className='status active';
+
+  if(bestErr<0.005){stopScan();draw3D(false);return;}
+
+  if(scanCounter>950){
+    if(bestErr>0.025){
+      // Not converged well enough — fall back to full grid scan
+      gScanActive=true; gScanP=0; gScanRot=0; gScanY=0;
+      st.textContent='Starting grid scan...'; st.className='status active';
+    } else {
+      stopScan(); draw3D(false);
+    }
+    scanId=requestAnimationFrame(scanStep); return;
+  }
+
+  const range=Math.PI*Math.pow(0.985,scanCounter/2.2);
+  const iters=bestErr<0.05?42:22;
+  for(let i=0;i<iters;i++){
+    const tP=jP+(Math.random()-0.5)*range, tR=jR+(Math.random()-0.5)*range, tY=jY+(Math.random()-0.5)*range;
+    const res=calculateState(tP,tR,tY,jigX,jigY,jigZ,12);
+    const sc=scoreCandidate(res,type);
+    if(sc<bestErr){bestErr=sc; applyAngles(tP,tR,tY);}
+  }
+  onUIChange(); scanId=requestAnimationFrame(scanStep);
 }
 
 function toggleScan(){ scanning?stopScan():startScan(); }
-function startScan(){ scanning=true; scanCounter=0; bestErr=999; equilibriumFound=false; document.getElementById('scanBtn').textContent='Stop'; scanStep(); }
-function stopScan(){ scanning=false; cancelAnimationFrame(scanId); document.getElementById('scanBtn').textContent='Auto-find Equilibrium'; }
+function startScan(){ scanning=true; scanCounter=0; bestErr=999; equilibriumFound=false; gScanActive=false; document.getElementById('scanBtn').textContent='Stop'; scanStep(); }
+function stopScan(){ scanning=false; gScanActive=false; cancelAnimationFrame(scanId); document.getElementById('scanBtn').textContent='Auto-find Equilibrium'; }
 function onUIChange(){ ['p', 'r', 'y', 'alpha'].forEach(k => { const el = document.getElementById(k+'Sl'), vEl = document.getElementById(k+'V'); if(vEl) vEl.textContent = (k==='alpha'?el.value+'%':el.value+'°'); }); draw3D(); }
 function resetJig(){ stopScan(); jigX=0; jigY=0; jigZ=0; bestErr=999; calculateState(jP, jR, jY, 0, 0, 0, 120); onUIChange(); }
 function newCurve(){ genSurface(); resetJig(); }
