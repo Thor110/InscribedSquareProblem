@@ -21,19 +21,19 @@ Because the Jordan boundary forbids self-intersection, this intersection cannot 
 ## Inscribed Square Problem
 My proposed proof for the Inscribed Square Problem
 
-The Skeletal Frame: Let $C$ be any Jordan curve.
+**The Skeletal Frame:** Let $C$ be any Jordan curve.
 
 Define a 'Skeletal Jig' consisting of two perpendicular lines intersecting at a common midpoint $I$.
 
-The Points of Intersection: As $I$ moves within $C$ and the jig rotates ($\theta$), the lines intersect $C$ at four points ($E, F, G, H$), forming two perpendicular chords.
+**The Points of Intersection:** As $I$ moves within $C$ and the jig rotates ($\theta$), the lines intersect $C$ at four points ($E, F, G, H$), forming two perpendicular chords.
 
-The Continuity of Chords: Because $C$ is a continuous Jordan curve, the lengths of these chords and their distances from $I$ vary continuously with respect to $I(x, y)$ and $\theta$.
+**The Continuity of Chords:** Because $C$ is a continuous Jordan curve, the lengths of these chords and their distances from $I$ vary continuously with respect to $I(x, y)$ and $\theta$.
 
-The First Equilibrium (Length): At any fixed point $I$, rotating the jig $90^\circ$ swaps the two chords. If Chord 1 was longer than Chord 2, it is now shorter. By the Intermediate Value Theorem (IVT), there must exist an angle $\theta$ where the two perpendicular chords are equal in length.
+**The First Equilibrium (Length):** At any fixed point $I$, rotating the jig $90^\circ$ swaps the two chords. If Chord 1 was longer than Chord 2, it is now shorter. By the Intermediate Value Theorem (IVT), there must exist an angle $\theta$ where the two perpendicular chords are equal in length.
 
-The Second Equilibrium (Bisection): As $I$ is moved through the interior of $C$, the offset of these equal-length chords (the distance from $I$ to the boundary) also varies continuously. There exists a position for $I$ where the midpoint of the jig aligns with the midpoints of both chords.
+**The Second Equilibrium (Bisection):** As $I$ is moved through the interior of $C$, the offset of these equal-length chords (the distance from $I$ to the boundary) also varies continuously. There exists a position for $I$ where the midpoint of the jig aligns with the midpoints of both chords.
 
-The Result: When the chords are perpendicular, equal in length, and bisected at $I$, the vertices $E, F, G, H$ define an inscribed square.
+**The Result:** When the chords are perpendicular, equal in length, and bisected at $I$, the vertices $E, F, G, H$ define an inscribed square.
 
 Therefore every Jordan curve contains an inscribed square.
 
@@ -44,34 +44,34 @@ A square is therefore a mechanical necessity of a continuous, non-self-intersect
 ## Inscribed Cube Problem
 The resolution of the 2D Inscribed Square Problem provides a Deterministic Foundation for the 3D Inscribed Cube Problem.
 
-The 3D Skeletal Jig: Let $C$ be any closed 3D Jordan surface.
+**The 3D Skeletal Jig:** Let $C$ be any closed 3D Jordan surface.
 
 Define a 3D 'Skeletal Jig' consisting of four perpendicular lines (axes) intersecting at a common midpoint $I$.
 
-The Points of Intersection: As $I$ moves within $C$ and the jig rotates, the four axes intersect $C$ at eight points, forming four perpendicular chords.
+**The Points of Intersection:** As $I$ moves within $C$ and the jig rotates, the four axes intersect $C$ at eight points, forming four perpendicular chords.
 
-The First Equilibrium (Length): At any fixed point $I$, rotating the jig allows the axes to swap positions. Because the lengths of the chords vary continuously as they rotate, the Intermediate Value Theorem (IVT) guarantees an orientation where all four perpendicular chords are equal in length.
+**The First Equilibrium (Length):** At any fixed point $I$, rotating the jig allows the axes to swap positions. Because the lengths of the chords vary continuously as they rotate, the Intermediate Value Theorem (IVT) guarantees an orientation where all four perpendicular chords are equal in length.
 
-The Second Equilibrium (Bisection): As $I$ is moved through the 3D interior of $C$, the offset of these equal-length chords (the distance from $I$ to the boundary) varies continuously. There exists a position for $I$ where the midpoint of the jig aligns with four equal-length chords.
+**The Second Equilibrium (Bisection):** As $I$ is moved through the 3D interior of $C$, the offset of these equal-length chords (the distance from $I$ to the boundary) varies continuously. There exists a position for $I$ where the midpoint of the jig aligns with four equal-length chords.
 
-The Result: When the four chords are perpendicular, equal in length, and bisected at $I$, the eight points of intersection define the centers of the faces (or vertices, depending on orientation) of an inscribed cube.
+**The Result:** When the four chords are perpendicular, equal in length, and bisected at $I$, the eight points of intersection define the centers of the faces (or vertices, depending on orientation) of an inscribed cube.
 
 Therefore every Jordan surface contains an inscribed cube.
 
 ## Inscribed Tetrahedron Problem
 Similarly the 2D Inscribed Triangle Problem which is already solved provides a Deterministic Foundation for the 3D Inscribed Regular Tetrahedron Problem.
 
-The Tetrahedral Jig: Let $C$ be any closed 3D Jordan surface.
+**The Tetrahedral Jig:** Let $C$ be any closed 3D Jordan surface.
 
 Define a 'Skeletal Jig' consisting of four rays extending from a common midpoint $I$ at the fixed tetrahedral angle of approximately $109.5^\circ$ from one another.
 
-The Points of Intersection: As $I$ moves within $C$ and the jig rotates, the four rays intersect $C$ at four points ($E, F, G, H$).
+**The Points of Intersection:** As $I$ moves within $C$ and the jig rotates, the four rays intersect $C$ at four points ($E, F, G, H$).
 
-The First Equilibrium (Length): Because the surface $C$ is continuous, the lengths of the four rays from $I$ to the boundary vary continuously. By rotating the jig, the rays swap orientations. The Intermediate Value Theorem (IVT) guarantees that there exists an orientation and a position for $I$ where all four rays are equal in length.
+**The First Equilibrium (Length):** Because the surface $C$ is continuous, the lengths of the four rays from $I$ to the boundary vary continuously. By rotating the jig, the rays swap orientations. The Intermediate Value Theorem (IVT) guarantees that there exists an orientation and a position for $I$ where all four rays are equal in length.
 
-The Second Equilibrium: As the four rays intersect $C$ at eight total points, there is twice the leverage for guaranteeing the result.
+**The Second Equilibrium:** As the four rays intersect $C$ at eight total points, there is twice the leverage for guaranteeing the result.
 
-The Result: When four points on a continuous surface are equidistant from a common center $I$ and maintained at regular tetrahedral angles, those points ($E, F, G, H$) define an inscribed regular tetrahedron.
+**The Result:** When four points on a continuous surface are equidistant from a common center $I$ and maintained at regular tetrahedral angles, those points ($E, F, G, H$) define an inscribed regular tetrahedron.
 
 Therefore every Jordan surface contains an inscribed regular tetrahedron.
 
@@ -81,27 +81,27 @@ A formal explanation describing another method of reasoning as to why this is tr
 
 To guarantee an equilibrium state, the available Degrees of Freedom (DoF) must meet or exceed the number of equality constraints required to make the shape regular.
 
-- 2D Space (3 DoF: $X, Y, \theta$)
+- **2D Space** (3 DoF: $X, Y, \theta$)
 
-Inscribed Square: Uses 2 DoF to center the midpoint $I(x,y)$ (Bisection) and 1 DoF to rotate $\theta$ until the chords are equal.
+**Inscribed Square:** Uses 2 DoF to center the midpoint $I(x,y)$ (Bisection) and 1 DoF to rotate $\theta$ until the chords are equal.
 
-	- Total: 3 Constraints.
+- **Total:** 3 Constraints.
 
-Inscribed Triangle: Uses 2 DoF for the midpoint and 1 DoF for rotation to equalize the 3 sides.
+**Inscribed Triangle:** Uses 2 DoF for the midpoint and 1 DoF for rotation to equalize the 3 sides.
 
-	- Total: 3 Constraints.
+- **Total:** 3 Constraints.
 
-- 3D Space (6 DoF: $X, Y, Z$ & Roll, Pitch, Yaw)
+- **3D Space** (6 DoF: $X, Y, Z$ & Roll, Pitch, Yaw)
 
-Inscribed Cube: Uses 3 DoF to center the midpoint $I(x,y,z)$ (Bisection) and 3 DoF of rotation to equalize the 3 perpendicular axes (6 face-centers).
+**Inscribed Cube:** Uses 3 DoF to center the midpoint $I(x,y,z)$ (Bisection) and 3 DoF of rotation to equalize the 3 perpendicular axes (6 face-centers).
 
-	- Total: 6 Constraints.
+- **Total:** 6 Constraints.
 
-Inscribed Tetrahedron: Uses 3 DoF for the midpoint and 3 DoF for rotation to equalize the 4 rays.
+**Inscribed Tetrahedron:** Uses 3 DoF for the midpoint and 3 DoF for rotation to equalize the 4 rays.
 
-	- Total: 6 Constraints (with only 4 points of contact, this is a "Loose" mechanical certainty).
+- **Total:** 6 Constraints (with only 4 points of contact, this is a "Loose" mechanical certainty).
 
-Conclusion: Since the available DoF ($3$ in 2D, $6$ in 3D) meets or exceeds the required points of contact, these shapes are a mechanically mandatory feature of any continuous volume.
+**Conclusion:** Since the available DoF ($3$ in 2D, $6$ in 3D) meets or exceeds the required points of contact, these shapes are a mechanically mandatory feature of any continuous volume.
 
 ## Perfect Odd Numbers...
 Another proof by Mechanical Necessity
