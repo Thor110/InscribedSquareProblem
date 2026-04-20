@@ -209,7 +209,7 @@ Prime = Not-Product.
 
 The "Outlier" status of primes is a mechanical mandatory of the number system, the irreducible points of silence between the noise of products.
 
-## Problem Problem ($P = NP$ & $P$ $!= NP$)
+## Problem or No Problem ($P = NP$ & $P$ $!= NP$)
 A : P = NP if you have all factors or variables that compose P
 
 &
