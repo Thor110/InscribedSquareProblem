@@ -1,23 +1,7 @@
-# Inscribed Square Problem
+# Problems
 This project utilizes a skeletal constraint-based search, a "rattling frame" to demonstrate that such a state of mechanical equilibrium exists for all continuous, non-self-intersecting 2D or 3D volumes. ( containing a regular triangle, square, regular tetrahedron and cube )
 
-NOTE : The current visualisation uses a different more brute force method.
-
-My proposed proof for the Inscribed Square Problem
-
-Let C be any Jordan curve.
-
-Let A and B be the minimum and maximum possible chord lengths across C.
-
-Because A and B are non-zero and distinct, matching chord lengths are guaranteed to exist between them, covering 180 degrees of possible directions continuously.
-
-Within any 180 degrees, every direction and its perpendicular both appear. By IVT (Intermediate Value Theorem), there must exist an angle at which a chord and its perpendicular chord are equal in length. Two equal perpendicular bisecting chords define a square. Therefore every Jordan curve contains an inscribed square.
-
-A square is therefore a mechanical necessity of a continuous, non-self-intersecting loop.
-
-IE : If you have two perpendicular chords going through any Jordan curve and you rotate them, while one gets longer or shorter, the other gets shorter or longer, making it a mechanical necessity that there is a matching pair somewhere around the Jordan curve.
-
-![Inscribed Square Viewfinder Demo](viewfinder_demo.gif)
+This repository also contains some other proposed proofs of mine.
 
 ## Interactive Demonstration
 You can view the **Inscribed Square & Cube Viewfinder** in action here:
@@ -26,45 +10,64 @@ You can view the **Inscribed Square & Cube Viewfinder** in action here:
 Note that the viewfinders are merely demonstration while the shape and space finders more accurately showcase the method.
 
 ## Expansion Paradox
-Consider a square expanding from any interior point within a Jordan curve. At a scale near zero, the square is entirely contained. At a scale larger than the curve's maximum diameter, the square entirely encloses the curve. Because the curve is a continuous, non-self-intersecting boundary, the transition from 'Inside' to 'Outside' necessitates an intermediate state where all four vertices intersect the boundary. Because the Jordan curve forbids self-intersection, this intersection cannot occur at a side length of zero, thereby guaranteeing a non-degenerate inscribed square.
+Consider a regular polytope (triangle, square, tetrahedron, or cube) expanding from any interior point $I$ within a closed Jordan boundary. At a scale near zero, the shape is entirely contained. At a scale larger than the volume's maximum diameter, the shape entirely encloses the boundary. Because the boundary is continuous and non-self-intersecting, the transition from 'Interior' to 'Exterior' requires an intermediate state of mechanical equilibrium where all vertices (or rays) intersect the boundary simultaneously. Because the Jordan boundary forbids self-intersection, this intersection cannot occur at a scale of zero, guaranteeing a non-degenerate inscribed shape.
+
+## Inscribed Square Problem
+My proposed proof for the Inscribed Square Problem
+
+The Skeletal Frame: Let $C$ be any Jordan curve.
+
+Define a 'Skeletal Jig' consisting of two perpendicular lines intersecting at a common midpoint $I$.
+
+The Points of Intersection: As $I$ moves within $C$ and the jig rotates ($\theta$), the lines intersect $C$ at four points ($E, F, G, H$), forming two perpendicular chords.
+
+The Continuity of Chords: Because $C$ is a continuous Jordan curve, the lengths of these chords and their distances from $I$ vary continuously with respect to $I(x, y)$ and $\theta$.
+
+The First Equilibrium (Length): At any fixed point $I$, rotating the jig $90^\circ$ swaps the two chords. If Chord 1 was longer than Chord 2, it is now shorter. By the Intermediate Value Theorem (IVT), there must exist an angle $\theta$ where the two perpendicular chords are equal in length.
+
+The Second Equilibrium (Bisection): As $I$ is moved through the interior of $C$, the offset of these equal-length chords (the distance from $I$ to the boundary) also varies continuously. There exists a position for $I$ where the midpoint of the jig aligns with the midpoints of both chords.
+
+The Result: When the chords are perpendicular, equal in length, and bisected at $I$, the vertices $E, F, G, H$ define an inscribed square.
+
+Therefore every Jordan curve contains an inscribed square.
+
+A square is therefore a mechanical necessity of a continuous, non-self-intersecting loop.
+
+![Inscribed Square Viewfinder Demo](viewfinder_demo.gif)
 
 ## Inscribed Cube Problem
-There exist planes whose intersection with any closed 3D Jordan surface is a Jordan curve, and those curves each contain an inscribed square, and the continuous variation of those squares across parallel planes guarantees a cube by IVT.
-
 The resolution of the 2D Inscribed Square Problem provides a Deterministic Foundation for the 3D Inscribed Cube Problem.
 
-By reducing the 3D volume to a continuous series of 2D planes, we can identify the cube as a mechanical necessity of the Jordan Surface.
+The 3D Skeletal Jig: Let $C$ be any closed 3D Jordan surface.
 
-Let C be any Jordan surface.
+Define a 3D 'Skeletal Jig' consisting of four perpendicular lines (axes) intersecting at a common midpoint $I$.
 
-Let A and B be the minimum and maximum possible chord lengths across C.
+The Points of Intersection: As $I$ moves within $C$ and the jig rotates, the four axes intersect $C$ at eight points, forming four perpendicular chords.
 
-Because A and B are non-zero and distinct, matching chord lengths are guaranteed to exist between them, covering 360 degrees of possible directions continuously.
+The First Equilibrium (Length): At any fixed point $I$, rotating the jig allows the axes to swap positions. Because the lengths of the chords vary continuously as they rotate, the Intermediate Value Theorem (IVT) guarantees an orientation where all four perpendicular chords are equal in length.
 
-Let C, D, E, F, G, H, I and J be continuous rays with a common midpoint extending to form a cube.
+The Second Equilibrium (Bisection): As $I$ is moved through the 3D interior of $C$, the offset of these equal-length chords (the distance from $I$ to the boundary) varies continuously. There exists a position for $I$ where the midpoint of the jig aligns with four equal-length chords.
 
-As all values between minimum and maximum exist, the midpoint and lengths must find equilibrium.
+The Result: When the three chords are perpendicular, equal in length, and bisected at $I$, the eight points of intersection define the centers of the faces (or vertices, depending on orientation) of an inscribed cube.
 
-Thus the lengths between the intersection poitns will form a cube.
+Therefore every Jordan surface contains an inscribed cube.
 
 ## Inscribed Tetrahedron Problem
-Just as a regular inscribed triangle is guaranteed to exist in any Jordan curve, I propose that a regular inscribed Tetrahedron is guaranteed to exist within any closed Jordan surface through the same mechanism.
+Similarly the 2D Inscribed Triangle Problem which is already solved provides a Deterministic Foundation for the 3D Inscribed Regular Tetrahedron Problem.
 
-Let C be any Jordan surface.
+The Tetrahedral Jig: Let $C$ be any closed 3D Jordan surface.
 
-Let A and B be the minimum and maximum possible chord lengths across C.
+Define a 'Skeletal Jig' consisting of four rays extending from a common midpoint $I$ at the fixed tetrahedral angle of approximately $109.5^\circ$ from one another.
 
-Because A and B are non-zero and distinct, matching chord lengths are guaranteed to exist between them, covering 360 degrees of possible directions continuously.
+The Points of Intersection: As $I$ moves within $C$ and the jig rotates, the four rays intersect $C$ at four points ($E, F, G, H$).
 
-Let C, D, E, and F be continuous rays with a common midpoint extending to form a regular tetrahedron.
+The First Equilibrium (Length): Because the surface $C$ is continuous, the lengths of the four rays from $I$ to the boundary vary continuously. By rotating the jig, the rays swap orientations. The Intermediate Value Theorem (IVT) guarantees that there exists an orientation and a position for $I$ where all four rays are equal in length.
 
-Let G, H, I, J, K and L be the lengths between the points on the rays intersecting with C that represent the tetrahedron.
+The Second Equilibrium: As the four rays intersect $C$ at eight total points, there is twice the leverage for guaranteeing the result.
 
-Note that because there are four rays there are two possible pairs of these values.
+The Result: When four points on a continuous surface are equidistant from a common center $I$ and maintained at regular tetrahedral angles, those points ($E, F, G, H$) define an inscribed regular tetrahedron.
 
-As all values between minimum and maximum exist, the midpoint and lengths must find equilibrium.
-
-Thus the side lengths between the intersection points will form a tetrahedron.
+Therefore every Jordan surface contains an inscribed regular tetrahedron.
 
 ## Perfect Odd Numbers...
 Another proof by Mechanical Necessity
