@@ -158,8 +158,6 @@ Process Repeat $\rightarrow 1$
 
 $\sum X = N$
 
-[Run the Number Stability Viewer](https://thor110.github.io/InscribedSquareProblem/pages/number-stability.html)
-
 ## The Bridge Analogy
 Attempting to construct an odd perfect number is like trying to build a bridge across a void where the laws of physics forbid the existence of the primary support beam.
 
@@ -196,46 +194,4 @@ For any odd number N, the sum of its proper divisors is structurally bounded bel
 ## Proof of Structural Instability for Odd Numbers
 This is another visualisation I have added to the interactive demonstrations.
 
-## The Prime Sieve ($P = NP$)
-The Irreducible Outliers
-
-While mathematics traditionally hunts for a "Steamroller" formula to predict the appearance of Prime numbers, the Mechanical Necessity of the number system defines a Prime ($P$) simply by what it is not: a product ($NP$).
-
-The Formula of Exclusion:
-
-$N \neq (N \times N) = NP$
-
-In this deterministic view, a Prime is the "Not-Prime" - the residue that remains when the sieve of multiplication filters out all composite products.
-
-The Deterministic Sieve:
-
-Products as Bridges:
-
-Every composite number is a bridge built from smaller prime support beams ($N \times N$).
-
-Primes as Gaps:
-
-Primes are the "Skeletal Gaps" in the bridge.
-
-They are the values that cannot be halved, tripled, or reduced into any integer structure.
-
-The Sieve of Necessity:
-
-You do not "calculate" a prime; you reveal it by calculating everything that it is not. It is a state of numerical rest that survives the process of elimination.
-
-The $P = NP$ Irony:
-
-In the "Attention Economy" of mathematics, $P = NP$ is treated as a complex complexity problem.
-
-In this repository, $P = NP$ is a trivial identity:
-
-Prime = Not-Product.
-
-The "Outlier" status of primes is a mechanical mandatory of the number system, the irreducible points of silence between the noise of products.
-
-## Problem or No Problem ($P = NP$ & $P$ $!= NP$)
-A : P = NP if you have all factors or variables that compose P
-
-&
-
-B : P = P if you don't have all factors or variables that compose P
+[Run the Number Stability Viewer](https://thor110.github.io/InscribedSquareProblem/pages/number-stability.html)
